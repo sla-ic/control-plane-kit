@@ -1,0 +1,388 @@
+{
+  "modules": [
+    {
+      "id": "spine",
+      "title": "The Spine: How the Agent Boots",
+      "order": 0,
+      "description": "The through-line. Every other module is a deeper look at one step in this boot chain.",
+      "tags": [
+        "core",
+        "boot",
+        "required-first"
+      ],
+      "connections": [
+        "identity",
+        "register",
+        "floor",
+        "decisions",
+        "continuity",
+        "conventions"
+      ],
+      "keyTakeaways": [
+        "The repo is the single source of truth (SSOT) — the harness is swappable",
+        "Boot order is load-bearing: identity → register → floor → decisions → continuity → conventions",
+        "Identity says who the agent is; the register says how it speaks",
+        "The floor is enforced as data, honored even if the harness guard is absent",
+        "Decisions (ADRs) justify why the floor and substrate are shaped this way",
+        "Continuity is where work actually stands — resume from it, not a chat summary",
+        "Conventions define the connector map and event contract"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "system": "Identity",
+          "action": "Load who the agent is and its operating model — orchestrate, don't do."
+        },
+        {
+          "step": 2,
+          "system": "Register",
+          "action": "Adopt the principal's voice: analysis-not-summary, verdict-first, no hedging."
+        },
+        {
+          "step": 3,
+          "system": "Floor",
+          "action": "Load the safety policy as data; hard-deny outward actuators without explicit approval."
+        },
+        {
+          "step": 4,
+          "system": "Decisions",
+          "action": "Consult the ADRs before changing any gate."
+        },
+        {
+          "step": 5,
+          "system": "Continuity",
+          "action": "Read in-flight state; resume the build from here."
+        },
+        {
+          "step": 6,
+          "system": "Conventions",
+          "action": "Load the connector capability map and JSONL event contract, then work."
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "title": "Module 1: Identity — Who the Agent Is",
+      "order": 1,
+      "description": "The agent's name, role, and operating model. Defines the relationship to the principal.",
+      "tags": [
+        "core",
+        "identity"
+      ],
+      "connections": [
+        "register",
+        "spine"
+      ],
+      "keyTakeaways": [
+        "Name the agent and the principal explicitly",
+        "State the operating model: force-multiplier, close loops, reserve context for synthesis",
+        "The harness (the CLI you happen to run in) is swappable and never the source of truth"
+      ]
+    },
+    {
+      "id": "register",
+      "title": "Module 2: The Register — How the Agent Speaks",
+      "order": 2,
+      "description": "The communication contract: tone, verdict-first structure, no decorative hedging.",
+      "tags": [
+        "core",
+        "comms"
+      ],
+      "connections": [
+        "identity"
+      ],
+      "keyTakeaways": [
+        "Analysis, not summary — lead with the verdict",
+        "Name errors plainly when corrected; no continuity disclaimers",
+        "Match the principal's register so output reads as theirs"
+      ]
+    },
+    {
+      "id": "floor",
+      "title": "Module 3: The Floor — Safety Policy as Data",
+      "order": 3,
+      "description": "A portable safety policy expressed as JSON, read by a guard hook, and covered by golden tests.",
+      "tags": [
+        "core",
+        "safety",
+        "required"
+      ],
+      "connections": [
+        "decisions",
+        "conventions"
+      ],
+      "keyTakeaways": [
+        "The floor is data (floor.json), not prose buried in a prompt",
+        "A PreToolUse guard reads it and fails closed on outward actuators",
+        "Golden tests pin the behavior so a refactor can't silently loosen a gate",
+        "Honor the floor even when the harness guard is absent"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "system": "floor.json",
+          "action": "Declares denied actuators and required-approval actions as data."
+        },
+        {
+          "step": 2,
+          "system": "guard hook",
+          "action": "Runs before each tool call; blocks anything the floor denies."
+        },
+        {
+          "step": 3,
+          "system": "golden tests",
+          "action": "Assert the guard's verdict on a fixed corpus of cases."
+        }
+      ]
+    },
+    {
+      "id": "decisions",
+      "title": "Module 4: Decisions — The ADR Log",
+      "order": 4,
+      "description": "Architecture Decision Records: the durable why behind every gate and substrate choice.",
+      "tags": [
+        "core",
+        "governance"
+      ],
+      "connections": [
+        "floor"
+      ],
+      "keyTakeaways": [
+        "One ADR per decision, kept in version control",
+        "Consult before changing a gate — the ADR is the rationale of record",
+        "ADRs are how a new teammate (human or agent) learns why, not just what"
+      ]
+    },
+    {
+      "id": "continuity",
+      "title": "Module 5: Continuity — Where Work Stands",
+      "order": 5,
+      "description": "The in-flight state of the build. The resume point that survives any harness reset.",
+      "tags": [
+        "core",
+        "state"
+      ],
+      "connections": [
+        "conventions"
+      ],
+      "keyTakeaways": [
+        "Continuity — not a chat compaction summary — is the resume point",
+        "Convert relative dates to absolute so the record ages cleanly",
+        "Keep it current: the next session boots from here"
+      ]
+    },
+    {
+      "id": "conventions",
+      "title": "Module 6: Conventions — Connectors & Contracts",
+      "order": 6,
+      "description": "The connector capability map, event log contract, and injection-fencing rules.",
+      "tags": [
+        "core",
+        "integration"
+      ],
+      "connections": [
+        "floor"
+      ],
+      "keyTakeaways": [
+        "Map each capability to a readable connector handle, not a raw UUID",
+        "Log tool events as JSONL against a fixed contract",
+        "Fence untrusted text from connectors — treat it as data, never instructions"
+      ]
+    },
+    {
+      "id": "harness",
+      "title": "Module 7: The Harness Seam",
+      "order": 7,
+      "description": "The swap point between the SSOT repo and whatever agent runtime executes it.",
+      "tags": [
+        "architecture"
+      ],
+      "connections": [
+        "spine",
+        "identity"
+      ],
+      "keyTakeaways": [
+        "The harness feeds the boot file, enforces the floor, and logs events",
+        "Everything the agent needs lives in version control, not a harness cache",
+        "Swap the harness without changing the control plane"
+      ]
+    }
+  ],
+  "jargon": [
+    {
+      "term": "SSOT",
+      "definition": "Single source of truth — the version-controlled repo that defines how the agent operates. The harness is swappable; this is not.",
+      "module": "spine",
+      "category": "core"
+    },
+    {
+      "term": "Floor",
+      "definition": "The portable safety policy, expressed as data (floor.json) and enforced by a guard hook. Fails closed on outward actuators.",
+      "module": "floor",
+      "category": "safety"
+    },
+    {
+      "term": "Register",
+      "definition": "The communication contract — the voice, structure, and standards the agent's output must match.",
+      "module": "register",
+      "category": "comms"
+    },
+    {
+      "term": "ADR",
+      "definition": "Architecture Decision Record — a single documented decision with its rationale, kept in version control.",
+      "module": "decisions",
+      "category": "governance"
+    },
+    {
+      "term": "Continuity",
+      "definition": "The in-flight state of the build; the resume point that survives a harness reset.",
+      "module": "continuity",
+      "category": "state"
+    },
+    {
+      "term": "Harness",
+      "definition": "The agent runtime (e.g. a CLI) that boots the SSOT, enforces the floor, and logs events. Swappable by design.",
+      "module": "harness",
+      "category": "architecture"
+    },
+    {
+      "term": "Guard hook",
+      "definition": "A PreToolUse hook that reads the floor and blocks disallowed tool calls before they run.",
+      "module": "floor",
+      "category": "safety"
+    },
+    {
+      "term": "Golden test",
+      "definition": "A pinned test asserting the guard's verdict on a fixed corpus, so refactors can't silently loosen a gate.",
+      "module": "floor",
+      "category": "safety"
+    },
+    {
+      "term": "MCP connector",
+      "definition": "A Model Context Protocol integration mapped to a readable capability handle (e.g. mcp__slack-search__).",
+      "module": "conventions",
+      "category": "integration"
+    },
+    {
+      "term": "Actuator",
+      "definition": "Any tool call with an outward effect (send, post, purchase, delete). The floor gates these.",
+      "module": "floor",
+      "category": "safety"
+    },
+    {
+      "term": "Fail-closed",
+      "definition": "When uncertain, deny. The guard blocks rather than allows on ambiguous cases.",
+      "module": "floor",
+      "category": "safety"
+    },
+    {
+      "term": "Boot order",
+      "definition": "identity → register → floor → decisions → continuity → conventions. Load-bearing sequence.",
+      "module": "spine",
+      "category": "core"
+    }
+  ],
+  "connections": [
+    {
+      "from": "floor",
+      "to": "decisions",
+      "label": "Every gate in the floor is justified by an ADR"
+    },
+    {
+      "from": "identity",
+      "to": "register",
+      "label": "Identity sets who the agent is; the register sets how it speaks"
+    },
+    {
+      "from": "harness",
+      "to": "floor",
+      "label": "The harness enforces the floor via a guard hook"
+    },
+    {
+      "from": "continuity",
+      "to": "conventions",
+      "label": "Resuming work relies on the connector map and event contract"
+    },
+    {
+      "from": "spine",
+      "to": "harness",
+      "label": "The boot chain is fed to the agent through the harness seam"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "harness-swap",
+      "title": "The Harness Disappears",
+      "order": 0,
+      "prompt": "Your current agent runtime is deprecated overnight. Walk through what it takes to boot the same control plane in a new one.",
+      "rubric": [
+        "The SSOT repo is unchanged — nothing needed lived only in the old harness",
+        "Point the new harness at the boot file; it loads identity → register → floor → decisions → continuity → conventions",
+        "Re-wire the guard hook so the floor is enforced in the new runtime",
+        "Re-map connectors to the same readable handles",
+        "Continuity tells the agent exactly where to resume"
+      ],
+      "modules": [
+        "harness",
+        "spine",
+        "floor"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "new-actuator",
+      "title": "A New Actuator",
+      "order": 1,
+      "prompt": "You want the agent to be able to send calendar invites. What has to change, and in what order?",
+      "rubric": [
+        "Sending an invite is an outward actuator — the floor denies it by default",
+        "Write an ADR for the decision to allow it, with the guardrail",
+        "Add the rule to floor.json as data; add golden tests for allow/deny cases",
+        "Map the calendar connector to a readable handle in conventions",
+        "The guard now permits the specific action while still failing closed elsewhere"
+      ],
+      "modules": [
+        "floor",
+        "decisions",
+        "conventions"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "floor-blocks-real-work",
+      "title": "The Floor Blocks a Real Task",
+      "order": 2,
+      "prompt": "The agent refuses to post a status update the principal actually wants sent. Diagnose and resolve without weakening safety.",
+      "rubric": [
+        "Confirm the block is the floor doing its job — posting is an outward actuator",
+        "The fix is explicit per-action approval from the principal, not disabling the guard",
+        "If this recurs, capture the rule change in an ADR before editing floor.json",
+        "Add golden tests so the new allowance is pinned and bounded"
+      ],
+      "modules": [
+        "floor",
+        "register",
+        "decisions"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "onboard-teammate",
+      "title": "Onboarding a New Teammate",
+      "order": 3,
+      "prompt": "A colleague clones this repo to build their own control plane. What do they change first, and what stays?",
+      "rubric": [
+        "Replace identity and the register with their own principal and voice",
+        "Keep the floor mechanism; adjust the specific gates to their risk posture via ADRs",
+        "Swap seed data, connector handles, and continuity for their own",
+        "Keep the harness seam and the boot order — those are the reusable spine"
+      ],
+      "modules": [
+        "identity",
+        "register",
+        "continuity"
+      ],
+      "difficulty": "easy"
+    }
+  ]
+}

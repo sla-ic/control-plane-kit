@@ -1,0 +1,51 @@
+# Mining status — surface-design open-learning pass
+
+Salvaged from killed run `wf_bcf74bab-7ae` (Scout done; Mine 19/42).
+
+## Mined (19) — material in this dir
+
+- Air traffic control: conflict-alert, flight-strip practice, and controller-automation intent-sharing
+- Anesthesiology vigilance and the closed-loop OR cockpit
+- Anomaly detection and statistical process control (Shewhart/control charts)
+- Aviation crew resource management and the sterile cockpit rule
+- Cybersecurity Security Operations Center (SOC) and SIEM alert triage
+- Diplomatic dispatch culture and the foreign-ministry red box / summary cable
+- Ecological Interface Design and Rasmussen's cognitive systems engineering
+- Emergency dispatch (911 / EMD protocols)
+- Financial trading desk and risk-limit / kill-switch architecture
+- Indications & Warning (I&W) / strategic-warning systems
+- Intelligence analysis tradecraft (CIA, Heuer's Psychology of Intelligence Analysis)
+- Intensive-care alarm fatigue and clinical alarm management science
+- Joint cognitive systems / human-automation function allocation (Sheridan's supervisory control)
+- Naval CIC / Combat Information Center doctrine
+- Nuclear control room design (esp. post-Three Mile Island human-factors reform)
+- Submarine sonar / acoustic watch standing
+- Theater stage management and the prompt book / cue calling
+- Triage systems (battlefield/emergency, e.g. START, Manchester)
+- Wartime command map rooms and the mission/intent (Auftragstaktik) tradition
+
+## Pending re-mine (23)
+
+- Active reading traditions: marginalia, commonplace book
+- Air defense / SAGE and early-warning command (ground-co (retry 3)
+- Air-crew and ICU checklists / Pronovost-style protocol 
+- Air-traffic-style maritime VTS and harbor pilotage (retry 4)
+- Algedonic signaling in management cybernetics
+- Beer's Cybernetic Viable System Model and Project Cyber (retry 3)
+- Calm technology and Weiser & Brown's periphery/center t (retry 3)
+- Card-game partnership signaling (bridge bidding/defensi
+- Epidemiological surveillance and syndromic outbreak det
+- Industrial process control / SCADA and the 'management  (retry 4)
+- Liturgy, the canonical hours, and monastic horaria (retry 4)
+- Mission control flight operations and the flight-direct
+- Naturalistic decision making and Recognition-Primed Dec (retry 3)
+- Newsroom wire-service editing and the assignment desk (retry 3)
+- Notification science and interruptibility / attention-m (retry 3)
+- Orchestral conducting and the score-as-interface
+- Personal-assistant / chief-of-staff and executive gatek (retry 3)
+- Sentinel / sentry and guard-post standing orders (gener
+- Sheepdog / falconry handling and human-animal working p
+- Ship's bridge watchkeeping, the bell book, and standing (retry 3)
+- Sommelier/perfumery and expert sensory triage tradition
+- Sports coaching from the booth / spotter-to-coach commu (retry 4)
+- Wildland fire lookout and dispatch (Osborne firefinder 

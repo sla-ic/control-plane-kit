@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.amp-synthesize</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-l</string>
+        <string>/Users/you/.local/share/amp-tasks/synthesize.sh</string>
+    </array>
+
+    <!-- Self-updating reasoning enrichment. Runs each morning at 07:20, AFTER
+         cycle-b's 07:00 canonical-priority + adjudicate refresh so it reasons
+         over the freshest signals. Batch job, not a daemon (no KeepAlive). -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>20</integer></dict>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/you/.local/share/amp-tasks</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/you/Library/Logs/amp-tasks/synthesize.err.log</string>
+    <key>StandardOutPath</key>
+    <string>/Users/you/Library/Logs/amp-tasks/synthesize.out.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist>

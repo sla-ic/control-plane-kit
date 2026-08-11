@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payments — Learn</title>
+<style>
+  @font-face {
+    font-family: 'Glacial Indifference';
+    src: url('/fonts/GlacialIndifference-Regular.ttf') format('truetype');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Glacial Indifference';
+    src: url('/fonts/GlacialIndifference-Bold.ttf') format('truetype');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+  :root {
+    --bg: #0c0e14;
+    --surface: #13151f;
+    --surface2: #1a1d2a;
+    --surface3: #20243a;
+    --border: #272b40;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --muted: #4a5270;
+    --accent: #6366f1;
+    --accent-dim: rgba(99,102,241,0.12);
+    --gold: #f59e0b;
+    --gold-dim: rgba(245,158,11,0.12);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.1);
+    --yellow: #eab308;
+    --yellow-dim: rgba(234,179,8,0.1);
+    --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: inherit; }
+  body { background: var(--bg); color: var(--text); font-family: 'Glacial Indifference', -apple-system, sans-serif; font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-header { padding: 20px 16px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+  .sidebar-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nav-section { padding: 10px 8px 4px; }
+  .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; color: var(--text2); font-size: 13px; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+  .nav-item .icon { font-size: 14px; width: 18px; text-align: center; }
+  .nav-badge { margin-left: auto; font-size: 10px; background: var(--surface3); color: var(--text2); padding: 1px 6px; border-radius: 10px; }
+  .sidebar-footer { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); }
+  .streak-display { display: flex; align-items: center; gap: 8px; }
+  .streak-fire { font-size: 18px; }
+  .streak-num { font-size: 20px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .streak-label { font-size: 10px; color: var(--muted); }
+  .xp-bar-wrap { margin-top: 10px; }
+  .xp-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .xp-bar { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .xp-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .view { display: none; flex-direction: column; height: 100%; }
+  .view.active { display: flex; }
+
+  /* DASHBOARD */
+  .dash-header { padding: 24px 28px 0; }
+  .dash-greeting { font-size: 20px; font-weight: 700; }
+  .dash-sub { color: var(--text2); font-size: 13px; margin-top: 4px; }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 20px 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.green { color: var(--green); }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 0 28px; margin-bottom: 12px; }
+  .dash-section { padding: 0 28px 20px; }
+
+  /* MODULE GRID */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .module-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.15s; }
+  .module-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .module-num { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .module-name { font-size: 12px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+  .module-bar { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .module-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .fill-unknown { background: var(--muted); width: 0%; }
+  .fill-learning { background: var(--yellow); }
+  .fill-familiar { background: var(--yellow); }
+  .fill-known { background: var(--green); }
+  .fill-mastered { background: var(--accent); }
+
+  /* CTA BUTTONS */
+  .cta-row { display: flex; gap: 10px; padding: 0 28px 20px; flex-wrap: wrap; }
+  .cta-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; transition: all 0.15s; text-decoration: none; }
+  .cta-btn.primary { background: var(--accent); color: #fff; }
+  .cta-btn.primary:hover { background: #5254cc; }
+  .cta-btn.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text2); }
+  .cta-btn.secondary:hover { border-color: var(--accent); color: var(--text); }
+  .cta-btn .pill { background: rgba(255,255,255,0.2); padding: 1px 7px; border-radius: 10px; font-size: 11px; }
+
+  /* LEARN VIEW */
+  .learn-layout { display: flex; height: 100%; }
+  .learn-sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; flex-shrink: 0; }
+  .learn-sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .learn-module-item { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border); transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
+  .learn-module-item:hover { background: var(--surface2); }
+  .learn-module-item.active { background: var(--accent-dim); border-left: 2px solid var(--accent); padding-left: 14px; }
+  .learn-module-item .m-num { font-size: 10px; color: var(--muted); min-width: 24px; }
+  .learn-module-item .m-title { font-size: 12px; line-height: 1.3; flex: 1; }
+  .learn-module-item .m-check { font-size: 12px; color: var(--green); }
+  .learn-content { flex: 1; overflow-y: auto; padding: 28px 36px; max-width: 760px; }
+  .learn-module-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .learn-module-desc { color: var(--text2); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+  .learn-section { margin-bottom: 24px; }
+  .learn-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; }
+  .takeaway-list { display: flex; flex-direction: column; gap: 8px; }
+  .takeaway { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; line-height: 1.5; display: flex; gap: 10px; align-items: flex-start; }
+  .takeaway::before { content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .connection-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 4px 10px; border-radius: 20px; font-size: 11px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .deep-cut { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.6; color: var(--text2); }
+  .deep-cut-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 6px; }
+  .step-list { display: flex; flex-direction: column; gap: 6px; }
+  .step-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .step-num { min-width: 22px; height: 22px; background: var(--accent-dim); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-system { font-size: 11px; font-weight: 700; color: var(--gold); min-width: 80px; }
+  .step-action { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .learn-nav { display: flex; gap: 10px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .mark-read-btn { background: var(--green-dim); border: 1px solid var(--green); color: var(--green); padding: 9px 18px; border-radius: 7px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; transition: all 0.15s; }
+  .mark-read-btn:hover { background: var(--green); color: #0c0e14; }
+  .mark-read-btn.done { background: var(--green); color: #0c0e14; cursor: default; }
+
+  /* DRILL VIEW */
+  .drill-layout { display: flex; flex-direction: column; height: 100%; }
+  .drill-header { padding: 20px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .drill-title { font-size: 18px; font-weight: 700; }
+  .drill-progress { font-size: 13px; color: var(--text2); }
+  .drill-filter-bar { display: flex; gap: 8px; padding: 12px 28px; border-bottom: 1px solid var(--border); flex-wrap: wrap; overflow-x: auto; }
+  .filter-chip { padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .filter-chip:hover, .filter-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .drill-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 28px; }
+  .card-container { width: 100%; max-width: 600px; }
+  .flashcard { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 36px; min-height: 220px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .card-category { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 16px; }
+  .card-type { font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+  .card-prompt { font-size: 20px; font-weight: 700; line-height: 1.4; color: var(--text); }
+  .card-answer { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 15px; line-height: 1.6; color: var(--text2); display: none; }
+  .card-answer.shown { display: block; }
+  .card-answer .answer-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+  .card-module { position: absolute; top: 14px; right: 14px; font-size: 10px; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 10px; }
+  .drill-actions { display: flex; gap: 8px; padding: 0 28px 20px; justify-content: center; }
+  .show-btn { background: var(--accent); color: #fff; border: none; padding: 11px 32px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .show-btn:hover { background: #5254cc; }
+  .rating-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .rating-btn { border: none; padding: 10px 20px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .rating-btn.again { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  .rating-btn.hard { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow); }
+  .rating-btn.good { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .rating-btn.easy { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+  .rating-btn:hover { opacity: 0.8; }
+  .drill-empty { text-align: center; color: var(--text2); }
+  .drill-empty .big { font-size: 40px; margin-bottom: 12px; }
+  .drill-empty h3 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+  .deck-done { text-align: center; padding: 40px; }
+  .deck-done .trophy { font-size: 48px; margin-bottom: 16px; }
+  .deck-done h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .deck-done p { color: var(--text2); font-size: 14px; }
+  .drill-stats { display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .drill-stat { text-align: center; }
+  .drill-stat .n { font-size: 24px; font-weight: 700; }
+  .drill-stat .l { font-size: 11px; color: var(--muted); }
+
+  /* SCENARIOS VIEW */
+  .scenarios-layout { padding: 28px; overflow-y: auto; }
+  .scenarios-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .scenarios-sub { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .scenario-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; }
+  .scenario-card:hover { border-color: var(--accent); }
+  .scenario-card.active { border-color: var(--accent); background: var(--accent-dim); }
+  .scenario-difficulty { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .difficulty-medium { color: var(--yellow); }
+  .difficulty-hard { color: var(--red); }
+  .scenario-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .scenario-preview { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .scenario-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .scenario-prompt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 15px; line-height: 1.6; margin-bottom: 16px; }
+  .scenario-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: var(--text); font-family: inherit; font-size: 13px; line-height: 1.6; resize: vertical; min-height: 140px; outline: none; transition: border-color 0.15s; }
+  .scenario-textarea:focus { border-color: var(--accent); }
+  .reveal-btn { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); padding: 9px 20px; border-radius: 7px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; margin-top: 12px; transition: all 0.15s; }
+  .reveal-btn:hover { background: var(--gold); color: #0c0e14; }
+  .rubric-box { margin-top: 16px; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 8px; padding: 16px; display: none; }
+  .rubric-box.shown { display: block; }
+  .rubric-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); margin-bottom: 10px; }
+  .rubric-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .rubric-item::before { content: '✓'; color: var(--green); flex-shrink: 0; }
+  .modules-tag-row { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* JARGON VIEW */
+  .jargon-layout { padding: 28px; overflow-y: auto; }
+  .jargon-header { margin-bottom: 20px; }
+  .jargon-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .jargon-sub { color: var(--text2); font-size: 14px; }
+  .jargon-search { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: inherit; font-size: 14px; outline: none; margin-bottom: 16px; transition: border-color 0.15s; }
+  .jargon-search:focus { border-color: var(--accent); }
+  .jargon-filter-row { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .jargon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+  .jargon-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .jargon-term { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .jargon-def { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .jargon-meta { display: flex; gap: 6px; margin-top: 8px; }
+  .jargon-tag { font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 2px 8px; border-radius: 10px; }
+
+  /* CONNECTIONS VIEW */
+  .connections-layout { padding: 28px; overflow-y: auto; }
+  .connections-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .connections-sub { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+  .connection-list { display: flex; flex-direction: column; gap: 8px; max-width: 760px; }
+  .connection-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .conn-from { font-weight: 700; color: var(--accent); min-width: 140px; font-size: 13px; }
+  .conn-arrow { color: var(--muted); padding-top: 1px; }
+  .conn-label { font-size: 13px; color: var(--text2); line-height: 1.5; flex: 1; }
+  .conn-to { font-weight: 700; color: var(--gold); font-size: 12px; min-width: 120px; text-align: right; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 100; max-width: 300px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast .xp-gain { color: var(--gold); font-weight: 700; }
+
+  /* EMPTY STATES */
+  .empty { text-align: center; padding: 60px 28px; color: var(--text2); }
+  .empty .icon { font-size: 36px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Payments</div>
+    <div class="sidebar-sub">Learning System</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Modes</div>
+    <button class="nav-item active" onclick="showView('dashboard')">
+      <span class="icon">⌂</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showView('learn')">
+      <span class="icon">📖</span> Learn
+      <span class="nav-badge" id="learn-badge">0/19</span>
+    </button>
+    <button class="nav-item" onclick="showView('drill')">
+      <span class="icon">⚡</span> Drill
+      <span class="nav-badge" id="drill-badge">0 due</span>
+    </button>
+    <button class="nav-item" onclick="showView('scenarios')">
+      <span class="icon">🎯</span> Scenarios
+    </button>
+    <button class="nav-item" onclick="showView('jargon')">
+      <span class="icon">📚</span> Jargon
+      <span class="nav-badge" id="jargon-badge">49</span>
+    </button>
+    <button class="nav-item" onclick="showView('connections')">
+      <span class="icon">🕸</span> Connections
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="streak-display">
+      <div class="streak-fire">🔥</div>
+      <div>
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="streak-label">day streak</div>
+      </div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-label">
+        <span id="level-label">Lv.1 Checkout Novice</span>
+        <span id="xp-label">0 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="dash-header">
+      <div class="dash-greeting">Good morning, Jordan.</div>
+      <div class="dash-sub" id="dash-sub">Loading your progress...</div>
+    </div>
+    <div class="dash-grid">
+      <div class="stat-card">
+        <div class="stat-label">Overall Mastery</div>
+        <div class="stat-value accent" id="stat-mastery">0%</div>
+        <div class="stat-sub" id="stat-mastery-sub">0 of 49 terms known</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Modules Read</div>
+        <div class="stat-value green" id="stat-modules">0/19</div>
+        <div class="stat-sub">modules completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cards Due</div>
+        <div class="stat-value gold" id="stat-due">0</div>
+        <div class="stat-sub">ready for review</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total XP</div>
+        <div class="stat-value accent" id="stat-xp">0</div>
+        <div class="stat-sub" id="stat-level">Level 1</div>
+      </div>
+    </div>
+    <div class="cta-row">
+      <button class="cta-btn primary" onclick="showView('drill')">
+        ⚡ Start Drill <span class="pill" id="cta-due-count">0 due</span>
+      </button>
+      <button class="cta-btn secondary" onclick="showView('learn')">
+        📖 Continue Learning
+      </button>
+      <button class="cta-btn secondary" onclick="showView('scenarios')">
+        🎯 Try a Scenario
+      </button>
+    </div>
+    <div class="dash-section">
+      <div class="section-title">Module Progress</div>
+      <div class="module-grid" id="module-grid"></div>
+    </div>
+  </div>
+
+  <!-- LEARN VIEW -->
+  <div class="view" id="view-learn">
+    <div class="learn-layout">
+      <div class="learn-sidebar">
+        <div class="learn-sidebar-header">Modules</div>
+        <div id="learn-module-list"></div>
+      </div>
+      <div class="learn-content" id="learn-content">
+        <div class="empty">
+          <div class="icon">📖</div>
+          <h3>Select a module to begin</h3>
+          <p>Start with The Spine — it's the through-line for everything else.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRILL VIEW -->
+  <div class="view" id="view-drill">
+    <div class="drill-layout">
+      <div class="drill-header">
+        <div>
+          <div class="drill-title">⚡ Drill</div>
+        </div>
+        <div class="drill-progress" id="drill-progress-text">Select a deck to begin</div>
+      </div>
+      <div class="drill-filter-bar" id="drill-filter-bar">
+        <div class="filter-chip active" onclick="selectDeck('all', this)">All Terms</div>
+        <div class="filter-chip" onclick="selectDeck('due', this)">Due Now</div>
+        <div class="filter-chip" onclick="selectDeck('infrastructure', this)">Infrastructure</div>
+        <div class="filter-chip" onclick="selectDeck('fraud', this)">Fraud</div>
+        <div class="filter-chip" onclick="selectDeck('economics', this)">Economics</div>
+        <div class="filter-chip" onclick="selectDeck('regulatory', this)">Regulatory</div>
+        <div class="filter-chip" onclick="selectDeck('payments', this)">Payments</div>
+        <div class="filter-chip" onclick="selectDeck('processors', this)">Processors</div>
+        <div class="filter-chip" onclick="selectDeck('strategy', this)">Strategy</div>
+      </div>
+      <div class="drill-main" id="drill-main">
+        <div class="card-container" id="card-container">
+          <div class="empty">
+            <div class="icon">⚡</div>
+            <h3>Ready to drill?</h3>
+            <p style="color:var(--text2)">Select a deck above to start.</p>
+          </div>
+        </div>
+      </div>
+      <div class="drill-actions" id="drill-actions"></div>
+    </div>
+  </div>
+
+  <!-- SCENARIOS VIEW -->
+  <div class="view" id="view-scenarios">
+    <div class="scenarios-layout">
+      <div class="scenarios-title">🎯 Scenarios</div>
+      <div class="scenarios-sub">Applied situations. Work through them, then check your reasoning against the rubric.</div>
+      <div class="scenario-grid" id="scenario-grid"></div>
+      <div id="scenario-detail-area"></div>
+    </div>
+  </div>
+
+  <!-- JARGON VIEW -->
+  <div class="view" id="view-jargon">
+    <div class="jargon-layout">
+      <div class="jargon-header">
+        <div class="jargon-title">📚 Jargon & Acronyms</div>
+        <div class="jargon-sub">49 terms. Know them cold.</div>
+      </div>
+      <input class="jargon-search" id="jargon-search" placeholder="Search terms..." oninput="filterJargon()">
+      <div class="jargon-filter-row" id="jargon-filter-row">
+        <div class="filter-chip active" onclick="setJargonCat('all', this)">All</div>
+        <div class="filter-chip" onclick="setJargonCat('infrastructure', this)">Infrastructure</div>
+        <div class="filter-chip" onclick="setJargonCat('fraud', this)">Fraud</div>
+        <div class="filter-chip" onclick="setJargonCat('payments', this)">Payments</div>
+        <div class="filter-chip" onclick="setJargonCat('regulatory', this)">Regulatory</div>
+        <div class="filter-chip" onclick="setJargonCat('economics', this)">Economics</div>
+        <div class="filter-chip" onclick="setJargonCat('processors', this)">Processors</div>
+        <div class="filter-chip" onclick="setJargonCat('strategy', this)">Strategy</div>
+      </div>
+      <div class="jargon-grid" id="jargon-grid"></div>
+    </div>
+  </div>
+
+  <!-- CONNECTIONS VIEW -->
+  <div class="view" id="view-connections">
+    <div class="connections-layout">
+      <div class="connections-title">🕸 Connections</div>
+      <div class="connections-sub">How everything interplays. The stuff that makes this 11 not 4.</div>
+      <div class="connection-list" id="connection-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const LEVELS = [
+  { level: 1, title: 'Checkout Novice', xp: 0 },
+  { level: 2, title: 'Buyflow', xp: 500 },
+  { level: 3, title: 'Financier', xp: 1500 },
+  { level: 4, title: 'Cashier', xp: 3000 },
+  { level: 5, title: 'PGS', xp: 6000 },
+  { level: 6, title: 'VGS', xp: 10000 },
+  { level: 7, title: 'Processor', xp: 15000 },
+  { level: 8, title: 'Platform Architect', xp: 25000 },
+  { level: 9, title: 'Payments PM', xp: 40000 },
+];
+
+let STATE = {
+  xp: 0,
+  streak: 0,
+  lastReviewDate: null,
+  modulesRead: {},
+  cardMastery: {},
+  sessionStats: { correct: 0, wrong: 0, reviewed: 0 }
+};
+
+let CURRICULUM = null;
+let currentDrillDeck = [];
+let currentCardIdx = 0;
+let cardAnswerShown = false;
+let drillSessionStats = { correct: 0, wrong: 0 };
+let activeDeckFilter = 'all';
+let activeScenario = null;
+let jargonCatFilter = 'all';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('payments-learn-state');
+    if (s) STATE = { ...STATE, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem('payments-learn-state', JSON.stringify(STATE));
+}
+
+function getLevel() {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (STATE.xp >= LEVELS[i].xp) return LEVELS[i];
+  }
+  return LEVELS[0];
+}
+
+function getNextLevel() {
+  const cur = getLevel();
+  const next = LEVELS.find(l => l.xp > cur.xp);
+  return next || cur;
+}
+
+function addXP(amount, reason) {
+  STATE.xp += amount;
+  saveState();
+  updateSidebar();
+  showToast(`+${amount} XP — ${reason}`);
+}
+
+// SM-2 Algorithm
+function sm2(card, rating) {
+  // rating: 0=again, 1=hard, 2=good, 3=easy
+  let { interval = 1, easeFactor = 2.5, reps = 0, state = 'unknown' } = card;
+  if (rating === 0) {
+    interval = 1; reps = 0; state = 'flagged';
+  } else if (rating === 1) {
+    interval = Math.max(1, Math.floor(interval * 0.8));
+    easeFactor = Math.max(1.3, easeFactor - 0.15);
+    state = reps < 2 ? 'learning' : 'familiar';
+    reps++;
+  } else if (rating === 2) {
+    if (reps === 0) interval = 1;
+    else if (reps === 1) interval = 3;
+    else interval = Math.round(interval * easeFactor);
+    reps++;
+    state = reps < 2 ? 'learning' : reps < 4 ? 'familiar' : reps < 7 ? 'known' : 'mastered';
+  } else {
+    if (reps === 0) interval = 2;
+    else if (reps === 1) interval = 4;
+    else interval = Math.round(interval * (easeFactor + 0.1));
+    easeFactor = Math.min(3.0, easeFactor + 0.1);
+    reps++;
+    state = reps < 3 ? 'familiar' : reps < 6 ? 'known' : 'mastered';
+  }
+  const nextReview = new Date();
+  nextReview.setDate(nextReview.getDate() + interval);
+  return { interval, easeFactor, reps, state, nextReview: nextReview.toISOString() };
+}
+
+function getCardsDue() {
+  if (!CURRICULUM) return 0;
+  const now = new Date();
+  return CURRICULUM.jargon.filter(j => {
+    const m = STATE.cardMastery[j.term];
+    if (!m) return true;
+    if (m.state === 'flagged') return true;
+    if (!m.nextReview) return true;
+    return new Date(m.nextReview) <= now;
+  }).length;
+}
+
+function getMasteryPct() {
+  if (!CURRICULUM) return 0;
+  const total = CURRICULUM.jargon.length;
+  const known = CURRICULUM.jargon.filter(j => {
+    const m = STATE.cardMastery[j.term];
+    return m && (m.state === 'known' || m.state === 'mastered');
+  }).length;
+  return total > 0 ? Math.round((known / total) * 100) : 0;
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name === 'dashboard' ? 'dashboard' : name)) {
+      n.classList.add('active');
+    }
+  });
+  if (name === 'learn') renderLearnSidebar();
+  if (name === 'scenarios') renderScenarios();
+  if (name === 'jargon') renderJargon();
+  if (name === 'connections') renderConnections();
+  if (name === 'dashboard') updateDashboard();
+}
+
+// ═══════════════════════════════════════
+// SIDEBAR & DASHBOARD
+// ═══════════════════════════════════════
+function updateSidebar() {
+  const level = getLevel();
+  const next = getNextLevel();
+  document.getElementById('streak-num').textContent = STATE.streak;
+  document.getElementById('level-label').textContent = `Lv.${level.level} ${level.title}`;
+  document.getElementById('xp-label').textContent = `${STATE.xp.toLocaleString()} XP`;
+  const pct = level === next ? 100 : Math.round(((STATE.xp - level.xp) / (next.xp - level.xp)) * 100);
+  document.getElementById('xp-fill').style.width = pct + '%';
+  const due = getCardsDue();
+  document.getElementById('drill-badge').textContent = due + ' due';
+  if (CURRICULUM) {
+    const read = Object.keys(STATE.modulesRead).filter(k => STATE.modulesRead[k]).length;
+    document.getElementById('learn-badge').textContent = `${read}/${CURRICULUM.modules.length}`;
+  }
+}
+
+function updateDashboard() {
+  if (!CURRICULUM) return;
+  const due = getCardsDue();
+  const mastery = getMasteryPct();
+  const read = Object.keys(STATE.modulesRead).filter(k => STATE.modulesRead[k]).length;
+  const known = CURRICULUM.jargon.filter(j => {
+    const m = STATE.cardMastery[j.term];
+    return m && (m.state === 'known' || m.state === 'mastered');
+  }).length;
+  const level = getLevel();
+
+  document.getElementById('stat-mastery').textContent = mastery + '%';
+  document.getElementById('stat-mastery-sub').textContent = `${known} of ${CURRICULUM.jargon.length} terms known`;
+  document.getElementById('stat-modules').textContent = `${read}/${CURRICULUM.modules.length}`;
+  document.getElementById('stat-due').textContent = due;
+  document.getElementById('stat-xp').textContent = STATE.xp.toLocaleString();
+  document.getElementById('stat-level').textContent = `Level ${level.level} — ${level.title}`;
+  document.getElementById('cta-due-count').textContent = due + ' due';
+  document.getElementById('dash-sub').textContent = mastery === 0
+    ? 'Start with The Spine — it\'s the through-line for everything.'
+    : `${mastery}% mastery across ${CURRICULUM.jargon.length} terms.`;
+
+  // Module grid
+  const grid = document.getElementById('module-grid');
+  grid.innerHTML = CURRICULUM.modules.map(m => {
+    const read = STATE.modulesRead[m.id];
+    const pct = read ? 20 : 0;
+    return `<div class="module-card" onclick="openModule('${m.id}')">
+      <div class="module-num">Module ${m.order}</div>
+      <div class="module-name">${m.title.replace(/^Module \d+: /, '')}</div>
+      <div class="module-bar"><div class="module-fill ${read ? 'fill-familiar' : 'fill-unknown'}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function openModule(id) {
+  showView('learn');
+  renderLearnSidebar();
+  loadModule(id);
+}
+
+// ═══════════════════════════════════════
+// LEARN MODE
+// ═══════════════════════════════════════
+function renderLearnSidebar() {
+  if (!CURRICULUM) return;
+  const list = document.getElementById('learn-module-list');
+  list.innerHTML = CURRICULUM.modules.map(m => {
+    const read = STATE.modulesRead[m.id];
+    return `<div class="learn-module-item" id="lm-${m.id}" onclick="loadModule('${m.id}')">
+      <span class="m-num">${m.order}</span>
+      <span class="m-title">${m.title.replace(/^Module \d+: /, '').replace(/^The Spine: /, 'The Spine: ')}</span>
+      ${read ? '<span class="m-check">✓</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function loadModule(id) {
+  const m = CURRICULUM.modules.find(x => x.id === id);
+  if (!m) return;
+
+  // Update sidebar active
+  document.querySelectorAll('.learn-module-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('lm-' + id);
+  if (el) el.classList.add('active');
+
+  const read = STATE.modulesRead[id];
+  let html = `<div class="learn-module-title">${m.title}</div>
+    <div class="learn-module-desc">${m.description}</div>`;
+
+  // Key takeaways
+  if (m.keyTakeaways && m.keyTakeaways.length) {
+    html += `<div class="learn-section">
+      <div class="learn-section-title">Key Takeaways</div>
+      <div class="takeaway-list">${m.keyTakeaways.map(t => `<div class="takeaway">${t}</div>`).join('')}</div>
+    </div>`;
+  }
+
+  // Steps (spine)
+  if (m.steps && m.steps.length) {
+    html += `<div class="learn-section">
+      <div class="learn-section-title">Transaction Steps</div>
+      <div class="step-list">${m.steps.map(s => `
+        <div class="step-item">
+          <div class="step-num">${s.step}</div>
+          <div style="flex:1">
+            <div class="step-system">${s.system}</div>
+            <div class="step-action">${s.action}</div>
+          </div>
+        </div>`).join('')}</div>
+    </div>`;
+  }
+
+  // Deep cut
+  if (m.deepCut) {
+    html += `<div class="learn-section">
+      <div class="deep-cut-label">Deep Cut</div>
+      <div class="deep-cut">${m.deepCut}</div>
+    </div>`;
+  }
+
+  // Connections
+  if (m.connections && m.connections.length) {
+    html += `<div class="learn-section">
+      <div class="learn-section-title">Connects To</div>
+      <div class="connection-chips">${m.connections.map(c => `<span class="chip" onclick="openModule('${c}')">${c}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Tags
+  if (m.tags && m.tags.length) {
+    html += `<div class="learn-section">
+      <div class="learn-section-title">Topics</div>
+      <div class="connection-chips">${m.tags.map(t => `<span class="chip">${t}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Mark read button
+  html += `<div class="learn-nav">
+    <button class="mark-read-btn ${read ? 'done' : ''}" onclick="markRead('${id}')" id="read-btn-${id}">
+      ${read ? '✓ Module Read' : 'Mark as Read'}
+    </button>
+    <button class="cta-btn secondary" onclick="showView('drill')">⚡ Drill this topic</button>
+  </div>`;
+
+  document.getElementById('learn-content').innerHTML = html;
+  document.getElementById('learn-content').scrollTop = 0;
+}
+
+function markRead(id) {
+  if (STATE.modulesRead[id]) return;
+  STATE.modulesRead[id] = true;
+  saveState();
+  addXP(100, 'module read');
+  const btn = document.getElementById('read-btn-' + id);
+  if (btn) { btn.textContent = '✓ Module Read'; btn.classList.add('done'); }
+  const item = document.getElementById('lm-' + id);
+  if (item && !item.querySelector('.m-check')) {
+    const check = document.createElement('span');
+    check.className = 'm-check'; check.textContent = '✓';
+    item.appendChild(check);
+  }
+  updateSidebar();
+}
+
+// ═══════════════════════════════════════
+// DRILL MODE
+// ═══════════════════════════════════════
+function selectDeck(filter, el) {
+  document.querySelectorAll('.drill-filter-bar .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeDeckFilter = filter;
+  buildDeck(filter);
+}
+
+function buildDeck(filter) {
+  if (!CURRICULUM) return;
+  const now = new Date();
+  let cards = CURRICULUM.jargon.filter(j => {
+    if (filter === 'all') return true;
+    if (filter === 'due') {
+      const m = STATE.cardMastery[j.term];
+      if (!m) return true;
+      if (m.state === 'flagged') return true;
+      return new Date(m.nextReview || 0) <= now;
+    }
+    return j.category === filter;
+  });
+
+  // Sort: flagged first, then due, then unknown, then rest
+  cards.sort((a, b) => {
+    const ma = STATE.cardMastery[a.term];
+    const mb = STATE.cardMastery[b.term];
+    const stateOrder = s => ({ flagged: 0, unknown: 1, learning: 2, familiar: 3, known: 4, mastered: 5 }[s || 'unknown']);
+    return stateOrder(ma?.state) - stateOrder(mb?.state);
+  });
+
+  currentDrillDeck = cards;
+  currentCardIdx = 0;
+  drillSessionStats = { correct: 0, wrong: 0 };
+  renderCard();
+}
+
+function renderCard() {
+  const container = document.getElementById('card-container');
+  const actionsEl = document.getElementById('drill-actions');
+  const progressEl = document.getElementById('drill-progress-text');
+
+  if (!currentDrillDeck.length) {
+    container.innerHTML = `<div class="empty"><div class="icon">⚡</div><h3>Select a deck above</h3></div>`;
+    actionsEl.innerHTML = '';
+    progressEl.textContent = 'Select a deck to begin';
+    return;
+  }
+
+  if (currentCardIdx >= currentDrillDeck.length) {
+    // Session done
+    container.innerHTML = `<div class="deck-done">
+      <div class="trophy">🏆</div>
+      <h3>Deck complete!</h3>
+      <p>You reviewed ${currentDrillDeck.length} cards.</p>
+      <div class="drill-stats">
+        <div class="drill-stat"><div class="n" style="color:var(--green)">${drillSessionStats.correct}</div><div class="l">correct</div></div>
+        <div class="drill-stat"><div class="n" style="color:var(--red)">${drillSessionStats.wrong}</div><div class="l">needs work</div></div>
+      </div>
+    </div>`;
+    actionsEl.innerHTML = `<button class="cta-btn primary" onclick="buildDeck('${activeDeckFilter}')">Drill Again</button>
+      <button class="cta-btn secondary" onclick="showView('dashboard')">Back to Dashboard</button>`;
+    progressEl.textContent = `Complete — ${drillSessionStats.correct}/${currentDrillDeck.length} correct`;
+    addXP(50, 'drill session complete');
+    return;
+  }
+
+  const card = currentDrillDeck[currentCardIdx];
+  const mastery = STATE.cardMastery[card.term];
+  const stateLabel = mastery?.state || 'unknown';
+  cardAnswerShown = false;
+
+  progressEl.textContent = `${currentCardIdx + 1} / ${currentDrillDeck.length}`;
+
+  container.innerHTML = `<div class="flashcard">
+    <div class="card-module">${card.module}</div>
+    <div class="card-category">${card.category} · <span style="color:var(--${stateColor(stateLabel)})">${stateLabel}</span></div>
+    <div class="card-type">What is this?</div>
+    <div class="card-prompt">${card.term}</div>
+    <div class="card-answer" id="card-answer">
+      <div class="answer-label">Definition</div>
+      ${card.definition}
+    </div>
+  </div>`;
+
+  actionsEl.innerHTML = `<button class="show-btn" onclick="showAnswer()">Show Answer</button>`;
+}
+
+function stateColor(s) {
+  return { unknown: 'muted', flagged: 'red', learning: 'yellow', familiar: 'yellow', known: 'green', mastered: 'accent' }[s] || 'muted';
+}
+
+function showAnswer() {
+  cardAnswerShown = true;
+  const ans = document.getElementById('card-answer');
+  if (ans) ans.classList.add('shown');
+  document.getElementById('drill-actions').innerHTML = `
+    <div class="rating-row">
+      <button class="rating-btn again" onclick="rateCard(0)">✗ Again</button>
+      <button class="rating-btn hard" onclick="rateCard(1)">Hard</button>
+      <button class="rating-btn good" onclick="rateCard(2)">Good</button>
+      <button class="rating-btn easy" onclick="rateCard(3)">Easy ✓</button>
+    </div>`;
+}
+
+function rateCard(rating) {
+  const card = currentDrillDeck[currentCardIdx];
+  const existing = STATE.cardMastery[card.term] || {};
+  const updated = sm2(existing, rating);
+  STATE.cardMastery[card.term] = updated;
+  if (rating >= 2) {
+    drillSessionStats.correct++;
+    addXP(5, card.term);
+  } else {
+    drillSessionStats.wrong++;
+  }
+  saveState();
+  currentCardIdx++;
+  renderCard();
+  updateSidebar();
+}
+
+// ═══════════════════════════════════════
+// SCENARIOS
+// ═══════════════════════════════════════
+function renderScenarios() {
+  if (!CURRICULUM) return;
+  const grid = document.getElementById('scenario-grid');
+  grid.innerHTML = CURRICULUM.scenarios.map(s => `
+    <div class="scenario-card" onclick="openScenario('${s.id}')">
+      <div class="scenario-difficulty difficulty-${s.difficulty}">${s.difficulty.toUpperCase()}</div>
+      <div class="scenario-title">${s.title}</div>
+      <div class="scenario-preview">${s.prompt.substring(0, 100)}...</div>
+    </div>`).join('');
+  document.getElementById('scenario-detail-area').innerHTML = '';
+}
+
+function openScenario(id) {
+  const s = CURRICULUM.scenarios.find(x => x.id === id);
+  if (!s) return;
+  document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  document.getElementById('scenario-detail-area').innerHTML = `
+    <div class="scenario-detail">
+      <div class="learn-section-title" style="margin-bottom:10px">${s.title}</div>
+      <div class="scenario-prompt-box">${s.prompt}</div>
+      <textarea class="scenario-textarea" placeholder="Work through it here..."></textarea>
+      <div><button class="reveal-btn" onclick="revealRubric('rubric-${id}')">Reveal Rubric</button></div>
+      <div class="rubric-box" id="rubric-${id}">
+        <div class="rubric-title">Key Points — Did you cover these?</div>
+        ${s.rubric.map(r => `<div class="rubric-item">${r}</div>`).join('')}
+      </div>
+      <div class="modules-tag-row">${s.modules.map(m => `<span class="chip">${m}</span>`).join('')}</div>
+    </div>`;
+
+  document.getElementById('scenario-detail-area').scrollIntoView({ behavior: 'smooth' });
+}
+
+function revealRubric(id) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('shown'); addXP(75, 'scenario reviewed'); }
+}
+
+// ═══════════════════════════════════════
+// JARGON
+// ═══════════════════════════════════════
+function renderJargon() {
+  if (!CURRICULUM) return;
+  filterJargon();
+}
+
+function setJargonCat(cat, el) {
+  document.querySelectorAll('.jargon-filter-row .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  jargonCatFilter = cat;
+  filterJargon();
+}
+
+function filterJargon() {
+  if (!CURRICULUM) return;
+  const q = document.getElementById('jargon-search').value.toLowerCase();
+  let terms = CURRICULUM.jargon.filter(j => {
+    const catMatch = jargonCatFilter === 'all' || j.category === jargonCatFilter;
+    const textMatch = !q || j.term.toLowerCase().includes(q) || j.definition.toLowerCase().includes(q);
+    return catMatch && textMatch;
+  });
+
+  document.getElementById('jargon-grid').innerHTML = terms.map(j => {
+    const m = STATE.cardMastery[j.term];
+    const state = m?.state || 'unknown';
+    return `<div class="jargon-card">
+      <div class="jargon-term">${j.term}</div>
+      <div class="jargon-def">${j.definition}</div>
+      <div class="jargon-meta">
+        <span class="jargon-tag">${j.category}</span>
+        <span class="jargon-tag" style="color:var(--${stateColor(state)})">${state}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// CONNECTIONS
+// ═══════════════════════════════════════
+function renderConnections() {
+  if (!CURRICULUM) return;
+  document.getElementById('connection-list').innerHTML = CURRICULUM.connections.map(c => `
+    <div class="connection-item">
+      <div class="conn-from">${c.from}</div>
+      <div class="conn-arrow">→</div>
+      <div class="conn-label">${c.label}</div>
+      <div class="conn-to">${c.to}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span class="xp-gain">⚡</span> ${msg}`;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+async function init() {
+  loadState();
+  try {
+    const res = await fetch('/learn/data/curriculum.json');
+    CURRICULUM = await res.json();
+    updateDashboard();
+    updateSidebar();
+  } catch(e) {
+    console.error('Failed to load curriculum:', e);
+    document.getElementById('dash-sub').textContent = 'Error loading curriculum data.';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

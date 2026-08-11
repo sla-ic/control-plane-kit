@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.example.amp-awake</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<!--
+	  Tier-1 lid-closed fix (ADR-0009 addendum). The control plane already runs
+	  fully headless under launchd; it only pauses because macOS sleeps the Mac on
+	  lid-close and launchd coalesces the missed StartInterval/StartCalendarInterval
+	  beats to the next wake. `caffeinate -s` holds a PreventSystemSleep assertion —
+	  but ONLY while on AC power. On battery the assertion does not hold and the Mac
+	  sleeps normally, so this is safe in a bag. Contract: "runs lid-closed while on
+	  the charger." True lid-OFF / away-from-power autonomy is Tier-2 (ISC flip).
+	  Reversible: `launchctl bootout gui/$UID ~/Library/LaunchAgents/com.example.amp-awake.plist`.
+	-->
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/bin/caffeinate</string>
+		<string>-s</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/you/Library/Logs/amp-tasks/amp-awake.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/you/Library/Logs/amp-tasks/amp-awake.out.log</string>
+</dict>
+</plist>

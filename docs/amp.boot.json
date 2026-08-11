@@ -1,0 +1,30 @@
+{
+  "artifact": "amp-boot",
+  "version": 1,
+  "identity": { "name": "Amp", "handle": "amp", "supersedes": "nova" },
+  "repo_ssot": "github.com/your-org/control-plane",
+  "spine": "docs/BOOT.md",
+  "load_order": [
+    "docs/amp.md",
+    "docs/identity/register.md",
+    "docs/identity/jordan.md",
+    "docs/policy/floor.md",
+    "docs/continuity.md",
+    "docs/policy/conventions.md"
+  ],
+  "policy": {
+    "floor_data": "docs/policy/floor.json",
+    "floor_doc": "docs/policy/floor.md",
+    "conventions": "docs/policy/conventions.md",
+    "decisions_dir": "docs/decisions/"
+  },
+  "event_log": {
+    "format": "jsonl",
+    "contract": "docs/policy/conventions.md#2-jsonl-event-log-adr-0005-adr-0003",
+    "harness_path_hint": "set by shim (Claude Code: ~/.claude/projects/-Users-you/memory/routines.jsonl)"
+  },
+  "harness_shims": {
+    "claude-code": "harness/claude-code/"
+  },
+  "notes": "load_order files all exist and resolve. Floor.json is the behavior-preserving (regex-faithful) extraction of the legacy guard, golden-tested by harness/claude-code/golden_test.py; a capability-keyed reframe is a tracked future step, not this artifact."
+}

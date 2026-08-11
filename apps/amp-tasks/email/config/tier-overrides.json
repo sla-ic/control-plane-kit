@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "_doc": "EXAMPLE tier overrides (ADR-0013). Edited only by the principal (or the agent with explicit approval — record as a tier_override_changed JSONL event). Read by the stakeholder-rebuild, slack-sweep, inbox-triage, and brief routines. Tier 1 here is never downgraded by the weekly auto-rebuild. Replace with your own.",
+  "overrides": [
+    {
+      "identifier": "manager@example.com",
+      "slack_id": "U0MANAGER01",
+      "name": "Morgan Lee",
+      "tier": 1,
+      "reason": "Direct manager. Tier 1 regardless of frequency.",
+      "added_by": "jordan",
+      "added_iso": "2026-01-06"
+    },
+    {
+      "identifier": "exec@example.com",
+      "slack_id": "U0EXEC0001",
+      "name": "Alex Chen",
+      "tier": 1,
+      "reason": "Skip-level (VP). Tier 1 regardless of frequency.",
+      "added_by": "jordan",
+      "added_iso": "2026-01-06"
+    }
+  ]
+}

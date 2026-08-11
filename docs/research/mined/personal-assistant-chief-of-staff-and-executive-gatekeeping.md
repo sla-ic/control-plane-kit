@@ -1,0 +1,45 @@
+# Personal-assistant / chief-of-staff and executive gatekeeping
+> Mined via open-learning re-run (Sonnet).
+
+## The Principal's Log and Daily Brief
+**Term of art:** Morning Brief / Daily Read-Out
+A skilled EA or chief of staff synthesizes overnight signals — email, news, calendar changes, priority shifts — into a single, sequenced brief delivered before the principal's first meeting. The brief is not a dump; it is already triaged, with action items separated from FYI items, and FYI items ordered by urgency and stake. The principal consumes it once, makes fast disposition decisions ("handle," "defer," "I need to see this"), and the chief of staff carries those decisions into execution. The artifact is perishable — it expires at day's end and is rebuilt from scratch the next morning.
+**Failure mode:** Brief inflation. When the synthesizer is uncertain what the principal cares about, every item gets included "just in case." The brief grows until the principal skips it, and the loop collapses back into the principal scanning raw email — defeating the whole system.
+
+## Hard Gating vs. Soft Gating
+**Term of art:** Screened Access / Qualified Referral
+The EA or CoS does not simply block access to the principal — they pre-qualify inbound requests before deciding whether to route, handle, or escalate. Hard gating means the gatekeeper resolves the request entirely (books the meeting, sends the resource, declines the pitch). Soft gating means the gatekeeper prepares the principal: they surface the request with a recommended action, a summary of who is asking and why, and the minimum context needed to decide. The distinction matters because the gatekeeper's job is to reduce decision cost, not to accumulate power by withholding.
+**Failure mode:** Over-gating. The gatekeeper develops their own agenda — routing things they prefer the principal not to see, or soft-gating items that should be hard-gated to protect their own access to the principal. The corrective is periodic "skip-level" access — the principal periodically sees raw inbound to calibrate what is being filtered.
+
+## Proxy Authority and the "In My Principal's Voice" Convention
+**Term of art:** Delegated Signature Authority / Acting on Behalf Of (ABO)
+Chiefs of staff regularly act and communicate as if they were the principal — sending emails, making commitments, signing off on decisions — within an explicitly scoped set of domains. The mechanism is a negotiated authority map: the principal and CoS agree, explicitly and periodically, on which categories of decision the CoS can close without checking back. Outside that map, the CoS escalates before acting. The convention disciplines the CoS to stay in lane and disciplines the principal to think carefully about what they actually need to control personally.
+**Failure mode:** Authority creep. The CoS expands their acting scope gradually, often in good faith, until they are making decisions the principal would have made differently. The failure is invisible until a decision goes wrong, at which point the principal discovers their fingerprints are on something they did not authorize.
+
+## The Action Register
+**Term of art:** Open Items List / Principal's Tickler File
+The chief of staff maintains a living register of every open commitment, request, or follow-up the principal has made or received — keyed by owner, deadline, and status. At recurring intervals (weekly is typical), the CoS sweeps the register with the principal: items that are stale get re-assigned or closed, items approaching deadline get surfaced, and new items are logged. The register is the source of truth for "what is the principal accountable for" and "what is the principal waiting on from others." It is distinct from the principal's own calendar or task list — it is the CoS's view of the full accountability surface.
+**Failure mode:** Orphaned items. When the CoS is not present (travel, turnover), the register degrades because only the CoS knows the full state. The failure mode is that the principal does not know what they do not know — commitments quietly expire without anyone noticing.
+
+## Pre-Mortem Briefing Before High-Stakes Events
+**Term of art:** Pre-Brief / Murder Board
+Before a board meeting, major negotiation, or public appearance, the CoS assembles the relevant stakeholders to challenge the principal's planned position. The pre-brief surfaces likely objections, identifies information gaps, and stress-tests the principal's narrative before the actual event. The CoS's role is not to prepare slides — it is to orchestrate the challenge process and then synthesize the output into a concise "here is what you are likely to face and here is your recommended response" one-pager the principal carries in.
+**Failure mode:** Echo chamber pre-brief. If the CoS only assembles allies, the principal walks into the real meeting unprepared for adversarial questions. The murder board must include at least one person whose job is to steelman the opposing view.
+
+## Decision Memo with Recommended Action
+**Term of art:** Decision Memo / Action Memo
+When a decision must be made by the principal, the CoS (or their staff) authors a structured one-to-two-page memo: context (what is happening), options (typically two to four), recommendation (one option, with rationale), and decision line (a literal checkbox or signature block). The principal reads and marks the decision; the CoS executes. The memo format forces the author to think through the options before consuming the principal's time, and it creates a written record of why a decision was made. Senior White House staffers, military aides, and corporate CoS offices all use variants of this artifact.
+**Failure mode:** Options theater. The author presents three options where one is clearly the recommendation and two are strawmen. The principal rubber-stamps the recommendation without real deliberation, and the memo provides false evidence of a considered decision.
+
+## The "What I Need From You" Escalation Protocol
+**Term of art:** BLUF (Bottom Line Up Front) / Escalation with a Recommendation
+In military and executive staff culture, when something must be escalated to the principal, the escalating staff member leads with what they need — a decision, an introduction, a signature — before explaining context. The CoS enforces this norm across the organization: anyone who escalates to the principal must arrive with a recommendation, not just a problem. The CoS acts as a filter: if someone escalates without a recommendation, the CoS sends them back to develop one. This prevents the principal from being used as the organization's thinking organ for problems that subordinates should solve themselves.
+**Failure mode:** Recommendation theater. Staff learn to attach a nominal recommendation to every escalation to get past the CoS, without genuinely believing in it. The principal then faces a series of "recommendations" that are actually disguised requests for the principal to decide, eroding the protocol's value.
+
+## Stakeholder Temperature Sensing
+**Term of art:** Relationship Map / Stakeholder Pulse
+The CoS maintains an informal intelligence function: they actively track the sentiment and status of key relationships the principal holds — board members, major clients, peer executives, key reports. This happens through direct conversation ("I had coffee with X"), through pattern recognition in inbound communication, and through deliberate check-ins on behalf of the principal. The CoS surfaces relationship risks before they become visible to the principal — a board member who is cooling, a client who is shopping alternatives — and recommends preemptive action. The principal is then not surprised; they show up to interactions with accurate priors.
+**Failure mode:** Secondhand distortion. The CoS's relationship map is always one step removed from the principal's direct relationships. Stakeholders may say things to the CoS they would not say to the principal, and may behave differently when the principal is in the room. The map is an approximation that must be recalibrated through the principal's own direct contact at intervals.
+
+## What this field knows
+The EA/CoS field has developed a clear theory of cognitive leverage: the principal's scarce resource is not time per se but decision-quality attention, and the entire apparatus exists to protect and amplify that resource rather than merely schedule it. The field understands that a perceptually superior system (the CoS, the staff) must not just filter but pre-digest — delivering not raw information but shaped, recommended, closeable packets. Crucially, the field knows that proxy authority must be explicitly negotiated and periodically recalibrated, because the failure mode of any human-as-system is not malice but gradual scope drift. The loop-closing insight — that the principal should receive only items that have a clear "what I need from you" — is the field's deepest contribution to acting through a system that sees more than you do.

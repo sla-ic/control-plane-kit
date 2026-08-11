@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Amp Email Plane</title>
+<style>
+  :root{
+    --bg:#0b0f0c; --panel:#11161300; --card:#141a16; --line:#243026;
+    --ink:#e8f0ea; --dim:#8ba394; --green:#43B02A; --green2:#7BE05A;
+    --amber:#E8B23A; --red:#ff6b6b; --blue:#5aa9e0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:20px 28px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:19px;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--dim);font-size:12.5px}
+  header a{color:var(--green2);text-decoration:none;font-size:12.5px}
+  main{padding:22px 28px;max-width:1100px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .card .k{color:var(--dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:26px;font-weight:680;margin-top:4px;letter-spacing:-.02em}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin:26px 0 10px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+  .p-ready{background:rgba(67,176,42,.16);color:var(--green2)}
+  .p-blocked{background:rgba(255,107,107,.15);color:var(--red)}
+  .p-proposed{background:rgba(90,169,224,.15);color:var(--blue)}
+  .p-approved{background:rgba(232,178,58,.15);color:var(--amber)}
+  .p-needs_you{background:rgba(255,107,107,.15);color:var(--red)}
+  .p-external{background:rgba(90,169,224,.15);color:var(--blue)}
+  .p-route{background:#1b241d;color:var(--dim)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--dim)}
+  .conf{font-variant-numeric:tabular-nums;color:var(--dim)}
+  .empty{color:var(--dim);padding:20px 10px;font-style:italic}
+  details.digest{margin:6px 0 4px}
+  details.digest>summary{cursor:pointer;color:var(--dim);font-size:12.5px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px;list-style:none}
+  details.digest>summary::-webkit-details-marker{display:none}
+  details.digest>summary::before{content:'▸ ';color:var(--dim)}
+  details.digest[open]>summary::before{content:'▾ '}
+  details.digest[open]>summary{margin-bottom:8px}
+  .refresh{margin-left:auto;color:var(--dim);font-size:12px;cursor:pointer;border:1px solid var(--line);padding:4px 12px;border-radius:8px;background:var(--card)}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .live{background:var(--green)} .stale{background:var(--dim)}
+  .draft{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .draft.ready{border-left:3px solid var(--green)}
+  .draft.blocked{border-left:3px solid var(--red)}
+  .draft .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .draft .subj{font-weight:620}
+  .draft .body{white-space:pre-wrap;background:#0f1511;border:1px solid #1b241d;border-radius:8px;padding:12px;font-size:13px;margin:8px 0;max-height:280px;overflow:auto}
+  .draft .acts{display:flex;gap:8px;margin-top:6px}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 12px;border-radius:8px;font-size:12.5px}
+  .btn.primary{border-color:var(--green);color:var(--green2)}
+  .btn.gmail{border-color:var(--blue);color:var(--blue);text-decoration:none}
+  .note{color:var(--dim);font-size:12px;margin-top:4px}
+  .item{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-bottom:1px solid #1b241d}
+  .item .s{flex:1}
+  .commit{padding:6px 10px;border-bottom:1px solid #1b241d;font-size:13px}
+  .batch{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:12px}
+  .batch.trash{border-left:3px solid var(--red)} .batch.archive{border-left:3px solid var(--blue)} .batch.label{border-left:3px solid var(--amber)}
+  .batch .bhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .batch .bhead .bk{font-weight:620}
+  .batch .bacts{margin-left:auto;display:flex;gap:8px}
+  .swrow{display:flex;gap:10px;align-items:baseline;padding:6px 8px;border-bottom:1px solid #1b241d;font-size:13px}
+  .swrow:last-child{border-bottom:none}
+  .swrow .s{flex:1}
+  .swrow .rev{font-size:11.5px}
+  .rev.ok{color:var(--green2)} .rev.no{color:var(--red)}
+  .swrow .g{font-size:11px;color:var(--dim);font-style:italic}
+  .btn.danger{border-color:var(--red);color:var(--red)}
+  .p-executed{background:rgba(139,163,148,.15);color:var(--dim)}
+  .p-undone{background:rgba(232,178,58,.15);color:var(--amber)}
+  .exec{display:flex;gap:8px;align-items:baseline;padding:5px 8px;border-bottom:1px solid #1b241d;font-size:12.5px}
+  .exec .s{flex:1}
+  .atn{background:rgba(232,178,58,.07);border:1px solid rgba(232,178,58,.35);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:13px}
+  .atn .s{flex:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>📧 Amp Email Plane</h1>
+  <span class="sub" id="sub">loading…</span>
+  <a href="/">← control plane</a>
+  <a href="/needs-you.html">needs-you →</a>
+  <a href="/fleet.html">fleet →</a>
+  <span class="refresh" onclick="loadAll()">↻ refresh</span>
+</header>
+<main>
+  <div class="cards" id="cards"></div>
+
+  <h2>Inbox sweep — proposed cleanup (approve to execute)</h2>
+  <div id="sweep"></div>
+
+  <h2>Staged drafts — your send-decision</h2>
+  <div id="drafts"></div>
+
+  <h2>Needs you / external</h2>
+  <div id="items"></div>
+
+  <h2>Open commitments</h2>
+  <div id="commits"></div>
+</main>
+
+<script src="shared.js"></script>
+<script>
+// esc()/safeUrl() come from shared.js (canonical, superset-escaped).
+// jsq(): escape a value spliced into an inline onclick JS *string literal* (#25).
+// esc() is wrong here — its &#39; HTML-decodes back to ' and breaks out of the
+// string. Backslash-escape \ and ' for JS; HTML-escape " & < > for the attribute.
+const jsq = s => String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")
+  .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const conf = c => c==null?'':Math.round(c*100)+'%';
+const gmailLink = id => id ? `https://mail.google.com/mail/u/0/#drafts?compose=${encodeURIComponent(id)}` : null;
+
+async function act(kind, id, verb){
+  await fetch(`/api/email/${kind}/${id}/${verb}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  load();
+}
+// Per-row: apply = approve + execute Gmail action NOW (row drops into undo log);
+// reject/undo just drops or reverses it.
+async function sweepAct(id, verb){
+  await fetch(`/api/email/sweep/${id}/${verb}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  loadSweep();
+}
+async function sweepApply(id){
+  const r = await (await fetch(`/api/email/sweep/${id}/apply`, {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'})).json();
+  if (r && r.error) alert('Apply failed: '+r.error);
+  loadSweep();
+}
+// Batch: "Approve all" = apply the whole batch immediately; "Reject all" drops it.
+async function sweepBatchApply(key){
+  const r = await (await fetch('/api/email/sweep/batch/apply', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({batch_key:key})})).json();
+  if (r && r.error) alert('Apply failed: '+r.error);
+  loadSweep();
+}
+async function sweepBatch(verb, key){
+  await fetch(`/api/email/sweep/batch/${verb}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({batch_key:key})});
+  loadSweep();
+}
+const actIcon = a => a==='trash'?'🗑':a==='archive'?'📥':a==='label'?'🏷':'•';
+
+async function loadSweep(){
+  let s; try { s = await (await fetch('/api/email/sweep')).json(); } catch(e){ return; }
+  const {batches=[], attention=[], executed=[], summary={}} = s;
+  const el = document.getElementById('sweep');
+  let html = '';
+
+  // Attention first: threads the sweep KEPT because a real human is waiting on you.
+  if (attention.length) html += `<h2 style="margin:0 0 8px">⚠ Kept for you — a human is waiting</h2>` + attention.map(r=>`<div class="atn">
+      <div class="s"><b>${esc(r.subject||'(no subject)')}</b> <span class="conf">— ${esc(r.sender||r.sender_email||'')}</span>
+        <div class="g">${esc(r.review_note||'')}</div></div>
+    </div>`).join('') + `<h2 style="margin:18px 0 8px">Cleanup</h2>`;
+
+  html += batches.length ? batches.map(b=>`<div class="batch ${esc(b.action)}">
+    <div class="bhead">
+      <span>${actIcon(b.action)}</span><span class="bk">${esc(b.batch_key)}</span>
+      <span class="conf">${b.items.length} thread(s)</span>
+      <span class="bacts">
+        <span class="btn primary" onclick="sweepBatchApply('${jsq(b.batch_key)}')">Approve all</span>
+        <span class="btn danger" onclick="sweepBatch('reject','${jsq(b.batch_key)}')">Reject all</span>
+      </span>
+    </div>
+    ${b.items.map(r=>`<div class="swrow">
+      <span class="pill p-${esc(r.status)}">${esc(r.status)}</span>
+      <div class="s"><b>${esc(r.subject||'(no subject)')}</b> <span class="conf">— ${esc(r.sender||r.sender_email||'')}</span>
+        <div class="g">${esc(r.reason||'')}${r.guardrail&&r.guardrail!=='pass'?' · '+esc(r.guardrail):''}</div></div>
+      ${r.review_verdict?`<span class="rev ${r.review_verdict==='approve'?'ok':'no'}">review ${r.review_verdict==='approve'?'✓':'✗'} ${conf(r.review_conf)}</span>`:''}
+      <span class="btn primary" onclick="sweepApply(${r.id})">✓ apply</span>
+      <span class="btn danger" onclick="sweepAct(${r.id},'reject')">✗</span>
+    </div>`).join('')}
+  </div>`).join('') : '<div class="empty">No proposed cleanup. Inbox sweep is caught up. 🟢</div>';
+
+  if (executed.length) html += `<h2 style="margin-top:18px">Executed — one-click undo</h2>` + executed.map(r=>`<div class="exec">
+      <span>${actIcon(r.action)}</span>
+      <span class="pill p-${esc(r.status)}">${esc(r.status)}</span>
+      <div class="s">${esc(r.subject||'(no subject)')} <span class="conf">— ${esc(r.sender_email||'')}</span></div>
+      ${r.status==='executed'?`<span class="btn" onclick="sweepAct(${r.id},'undo')">↩ undo</span>`:'<span class="conf">undone</span>'}
+    </div>`).join('');
+  el.innerHTML = html;
+}
+
+async function load(){
+  let data;
+  try { data = await (await fetch('/api/email')).json(); }
+  catch(e){ document.getElementById('sub').textContent='email API unreachable'; return; }
+  const {items=[], drafts=[], commitments=[], summary={}} = data;
+
+  document.getElementById('sub').innerHTML =
+    `${summary.open_items||0} open · ${summary.ready_drafts||0} drafts ready · ${summary.open_commitments||0} commitments`;
+
+  document.getElementById('cards').innerHTML = [
+    ['Needs you', summary.needs_you||0],
+    ['Drafts ready', summary.ready_drafts||0],
+    ['Drafts blocked', summary.blocked_drafts||0],
+    ['Open items', summary.open_items||0],
+    ['Commitments', summary.open_commitments||0],
+  ].map(([k,v])=>`<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  const renderDraft = d=>{
+    const cls = d.status==='ready'?'ready':d.status==='blocked'?'blocked':'';
+    const link = gmailLink(d.gmail_draft_id);
+    return `<div class="draft ${cls}">
+      <div class="top">
+        <span class="pill p-${esc(d.status)}">${esc(d.status)}</span>
+        ${d.route?`<span class="pill p-route">${esc(d.route)}</span>`:''}
+        <span class="subj">${esc(d.subject||'(no subject)')}</span>
+        <span class="conf">${d.verdict?esc(d.verdict):''} ${conf(d.confidence)}</span>
+      </div>
+      ${d.status==='blocked' && d.blocked_reason?`<div class="note">⚠️ ${esc(d.blocked_reason)}</div>`:''}
+      ${d.body?`<div class="body">${esc(d.body)}</div>`:''}
+      ${d.note?`<div class="note">verifier: ${esc(d.note)}</div>`:''}
+      <div class="acts">
+        ${link?`<a class="btn gmail" href="${link}" target="_blank" rel="noopener">Open in Gmail →</a>`:''}
+        ${d.status==='ready'?`<span class="btn primary" onclick="act('drafts',${d.id},'approve')">Mark sent</span>`:''}
+        <span class="btn" onclick="act('drafts',${d.id},'discard')">Discard</span>
+      </div>
+    </div>`;
+  };
+  // Silence-by-default: only drafts awaiting a real send-decision are primary;
+  // blocked drafts (need an upstream unblock, not a click) collapse into a digest.
+  const liveDrafts = drafts.filter(d=>d.status!=='blocked');
+  const blockedDrafts = drafts.filter(d=>d.status==='blocked');
+  document.getElementById('drafts').innerHTML =
+    (liveDrafts.length ? liveDrafts.map(renderDraft).join('') : '<div class="empty">No drafts awaiting your send-decision. 🟢</div>')
+    + (blockedDrafts.length ? `<details class="digest"><summary>${blockedDrafts.length} blocked — need an upstream unblock, no action here</summary>${blockedDrafts.map(renderDraft).join('')}</details>` : '');
+
+  const renderItem = i=>`<div class="item">
+    <span class="pill p-${esc(i.route||'route')}">${esc(i.route||'inbox')}</span>
+    <div class="s"><b>${esc(i.subject||'(no subject)')}</b> <span class="conf">— ${esc(i.sender||'')}</span>
+      <div class="note">${esc(i.synth_summary||'')}</div></div>
+    <span class="btn" onclick="act('items',${i.id},'ack')">Ack</span>
+    <span class="btn" onclick="act('items',${i.id},'done')">Done</span>
+  </div>`;
+  // The header promises "needs you / external" — honor it. Everything else
+  // (inbox/automated/calendar/fyi) is FYI-class and belongs in a collapsed digest,
+  // not rendered live with per-item Ack/Done affordances.
+  const primary = items.filter(i=>i.route==='needs_you'||i.route==='external');
+  const rest = items.filter(i=>!(i.route==='needs_you'||i.route==='external'));
+  const restByRoute = {};
+  for (const i of rest) (restByRoute[i.route||'inbox'] = restByRoute[i.route||'inbox']||[]).push(i);
+  const digest = Object.keys(restByRoute).sort().map(r=>`${restByRoute[r].length} ${esc(r)}`).join(' · ');
+  document.getElementById('items').innerHTML =
+    (primary.length ? primary.map(renderItem).join('') : '<div class="empty">Nothing needs you. 🟢</div>')
+    + (rest.length ? `<details class="digest"><summary>${rest.length} more, batched — ${digest}</summary>${rest.map(renderItem).join('')}</details>` : '');
+
+  document.getElementById('commits').innerHTML = commitments.length ? commitments.map(c=>`<div class="commit">
+    <b>${esc(c.text)}</b> ${c.recipient?`<span class="conf">→ ${esc(c.recipient)}</span>`:''} ${c.due_iso?`<span class="pill p-blocked">due ${esc(c.due_iso)}</span>`:''}
+  </div>`).join('') : '<div class="empty">No open commitments.</div>';
+}
+function loadAll(){ load(); loadSweep(); }
+loadAll();
+// Poll on an interval, but skip refreshes while the tab is hidden (#27) — no point
+// burning fetches/tokens against a screen no one is looking at; refresh on return.
+setInterval(() => { if (!document.hidden) loadAll(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadAll(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Runtime state — the DB and logs are generated locally, never committed
+*.db
+*.db-shm
+*.db-wal
+*.sql
+apps/amp-tasks/state/
+*.log
+
+# Local secrets / env
+.env
+.env.*
+*.pem
+*.key
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+
+# Harness-local
+.claude/

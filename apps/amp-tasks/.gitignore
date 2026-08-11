@@ -1,0 +1,8 @@
+node_modules/
+tasks.db*
+server.log
+*.log
+.DS_Store
+state/tasks.db*
+state/*-pull.json
+state/*-scout.json

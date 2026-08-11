@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Amp · Needs You</title>
+<style>
+  :root{
+    --bg:#0b0f0c; --card:#141a16; --line:#243026;
+    --ink:#e8f0ea; --dim:#8ba394; --green:#43B02A; --green2:#7BE05A;
+    --amber:#E8B23A; --red:#ff6b6b; --blue:#5aa9e0; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:18px 26px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{font-size:18px;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--dim);font-size:12.5px}
+  header a{color:var(--green2);text-decoration:none;font-size:12.5px}
+  .refresh{margin-left:auto;color:var(--dim);font-size:12px;cursor:pointer;border:1px solid var(--line);padding:4px 12px;border-radius:8px;background:var(--card)}
+  main{padding:22px 26px;max-width:1020px}
+
+  /* summary strip */
+  .counts{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:24px;padding:12px 16px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  .cnt{text-align:center}
+  .cnt .v{font-size:22px;font-weight:700;letter-spacing:-.02em}
+  .cnt .k{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+
+  /* group heading */
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:24px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+
+  /* pill badges */
+  .pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap;line-height:1.6}
+  .p-P0{background:rgba(239,68,68,.18);color:#f87171}
+  .p-P1{background:rgba(249,115,22,.15);color:#fb923c}
+  .p-P2{background:rgba(234,179,8,.13);color:var(--amber)}
+  .p-P3,.p-P4{background:#1b241d;color:var(--dim)}
+  .p-tier0{background:rgba(239,68,68,.14);color:#f87171}
+  .p-tier1{background:rgba(249,115,22,.12);color:#fb923c}
+  .p-tier2{background:rgba(67,176,42,.14);color:var(--green2)}
+  .p-tier3{background:rgba(67,176,42,.2);color:var(--green2)}
+  .p-type{background:#1c2820;color:#94b8a0;border:1px solid #243026}
+  .p-ready{background:rgba(67,176,42,.14);color:var(--green2)}
+  .p-proposed{background:rgba(90,169,224,.13);color:var(--blue)}
+  .p-acted{background:rgba(139,163,148,.13);color:var(--dim)}
+  .p-dismissed{background:#1a1a1a;color:#555}
+
+  /* resolution card */
+  .res-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:border-color .15s}
+  .res-card.status-acted{opacity:.55}
+  .res-card.status-dismissed{opacity:.4}
+  .res-card.status-snoozed{opacity:.4}
+  .p-snoozed{background:rgba(167,139,250,.15);color:var(--purple)}
+  .res-card.unresolved{border-left:3px solid #2a3830}
+
+  /* card header */
+  .card-head{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .card-head .subj{font-weight:620;font-size:14px;flex:1;min-width:0}
+  .card-head .sender{color:var(--dim);font-size:12px;margin-top:2px}
+  .badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:4px}
+
+  /* section labels */
+  .sec{margin-top:12px}
+  .sec-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:4px}
+  .sec-body{font-size:13.5px;line-height:1.55;color:var(--ink)}
+  .ask-box{background:#0f1511;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px}
+  .decision-box{background:#0f1310;border:1px solid rgba(232,178,58,.2);border-radius:8px;padding:10px 12px;font-size:13.5px;color:#f0dfa0}
+
+  /* next steps checklist */
+  .steps{list-style:none;margin-top:4px}
+  .steps li{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid #1b241d;font-size:13px}
+  .steps li:last-child{border-bottom:none}
+  .step-txt{flex:1}
+  .effort{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:0 5px;white-space:nowrap}
+  .auto-badge{font-size:11px;color:var(--amber);margin-left:2px}
+
+  /* staged action */
+  .draft-block{position:relative;margin-top:4px}
+  .draft-block pre{white-space:pre-wrap;word-break:break-word;background:#0b100d;border:1px solid #1f2e22;border-radius:8px;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#a8c8b0;max-height:260px;overflow:auto}
+  .draft-copy{position:absolute;top:6px;right:8px;font-size:11px;padding:2px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer;color:var(--dim)}
+  .draft-copy:hover{color:var(--ink)}
+  .draft-note{font-size:11.5px;color:var(--amber);margin-top:4px}
+  .gmail-link{display:inline-block;margin-top:6px;font-size:12px;color:var(--blue);text-decoration:none;border:1px solid rgba(90,169,224,.3);padding:2px 10px;border-radius:6px}
+  .gmail-link:hover{background:rgba(90,169,224,.08)}
+
+  /* context sources */
+  details.ctx{margin-top:6px}
+  details.ctx summary{cursor:pointer;font-size:12px;color:var(--dim);user-select:none;list-style:none;display:flex;align-items:center;gap:6px}
+  details.ctx summary::before{content:'▶';font-size:9px;transition:transform .15s}
+  details.ctx[open] summary::before{transform:rotate(90deg)}
+  .ctx-list{margin-top:6px;list-style:none}
+  .ctx-list li{padding:5px 0;border-bottom:1px solid #1b241d;font-size:12.5px}
+  .ctx-list li:last-child{border-bottom:none}
+  .ctx-sys{font-size:11px;color:var(--dim);font-variant:small-caps;letter-spacing:.04em;margin-right:6px}
+  .ctx-excerpt{color:var(--dim);font-style:italic;font-size:12px;margin-top:2px}
+  .ctx-link{color:var(--blue);text-decoration:none;font-size:11.5px;margin-left:6px}
+
+  /* action buttons */
+  .card-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 13px;border-radius:8px;font-size:12.5px;font-family:inherit}
+  .btn:hover{border-color:#4a6050;color:var(--ink)}
+  .btn.primary{border-color:var(--green);color:var(--green2)}
+  .btn.primary:hover{background:rgba(67,176,42,.08)}
+  .btn.danger{border-color:var(--red);color:var(--red)}
+  .btn.danger:hover{background:rgba(255,107,107,.08)}
+  .btn.muted{border-color:#2a3028;color:var(--dim)}
+  .btn-act{border-color:#3a5a3a;color:var(--green2);background:rgba(67,176,42,.06)}
+  .btn-act:hover{background:rgba(67,176,42,.12)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* unresolved placeholder */
+  .unresolved-label{color:var(--dim);font-style:italic;font-size:13px;margin-top:4px}
+  .empty{color:var(--dim);font-style:italic;padding:20px 0}
+  .confidence{color:var(--dim);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 Needs You</h1>
+  <span class="sub" id="hd-sub">loading…</span>
+  <a href="/">← control plane</a>
+  <a href="/email.html">email plane</a>
+  <a href="/fleet.html">fleet</a>
+  <span class="refresh" onclick="load()">↻ refresh</span>
+</header>
+<main>
+  <div class="counts" id="counts-strip"></div>
+  <div id="content"></div>
+</main>
+
+<script src="shared.js"></script>
+<script>
+const TYPE_LABELS = {
+  jira_mention:     'Jira mention',
+  doc_signoff:      'Doc sign-off',
+  external_reply:   'External reply',
+  exec_escalation:  'Exec escalation',
+  meeting_followup: 'Meeting follow-up',
+  other:            'Other',
+};
+
+// esc()/safeUrl() come from shared.js (canonical). The escalation surface renders
+// URLs from external context sources (Jira/Slack/docs); safeUrl gates the scheme so
+// a javascript:/data: URL can't turn a source link into XSS.
+
+function tierClass(t){
+  const m = { P0:'p-P0', P1:'p-P1', P2:'p-P2', P3:'p-P3', P4:'p-P4' };
+  return m[t] || 'p-P3';
+}
+function atierClass(n){
+  const m = { 0:'p-tier0', 1:'p-tier1', 2:'p-tier2', 3:'p-tier3' };
+  return m[n] ?? 'p-tier0';
+}
+function atierLabel(n){
+  return n === null || n === undefined ? '—' : `Auto-${n}`;
+}
+function statusClass(s){
+  const m = { ready:'p-ready', proposed:'p-proposed', acted:'p-acted', dismissed:'p-dismissed' };
+  return m[s] || 'p-proposed';
+}
+
+function buildSteps(steps){
+  if(!steps || !steps.length) return '';
+  const rows = steps.map(s => `
+    <li>
+      <span class="step-txt">${esc(s.step)}</span>
+      <span class="effort">${esc(s.effort||'?')}</span>
+      ${s.can_automate ? '<span class="auto-badge" title="Can be automated">⚡</span>' : ''}
+    </li>`).join('');
+  return `<ul class="steps">${rows}</ul>`;
+}
+
+function buildContext(ctx){
+  if(!ctx || !ctx.length) return '';
+  const rows = ctx.map(c => `
+    <li>
+      <span class="ctx-sys">${esc(c.system)}</span>
+      ${c.ref ? `<span>${esc(c.ref)}</span>` : ''}
+      ${c.url ? `<a class="ctx-link" href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener">↗</a>` : ''}
+      ${c.excerpt ? `<div class="ctx-excerpt">${esc(c.excerpt)}</div>` : ''}
+    </li>`).join('');
+  return `<details class="ctx">
+    <summary>${ctx.length} source${ctx.length!==1?'s':''}</summary>
+    <ul class="ctx-list">${rows}</ul>
+  </details>`;
+}
+
+function gmailUrl(threadId){
+  if(!threadId) return null;
+  // Gmail thread URL — opens the thread in the web client; Jordan sends manually.
+  return `https://mail.google.com/mail/u/0/#all/${threadId}`;
+}
+
+function renderCard(item){
+  const resolved = item.resolved;
+  const statusCls = item.res_status ? `status-${item.res_status}` : '';
+  const unresolveCls = !resolved ? 'unresolved' : '';
+
+  if(!resolved){
+    return `<div class="res-card unresolved" data-item="${item.item_id}">
+      <div class="card-head">
+        <div>
+          <div class="subj">${esc(item.subject)}</div>
+          <div class="sender">${esc(item.sender||item.sender_email||'')}</div>
+          <div class="badges">
+            <span class="pill ${tierClass(item.tier)}">${esc(item.tier||'?')}</span>
+          </div>
+        </div>
+      </div>
+      <div class="unresolved-label">⏳ not yet analyzed — resolver hasn't processed this item</div>
+    </div>`;
+  }
+
+  const threadUrl = gmailUrl(item.thread_id);
+  const resId = item.res_id;
+
+  return `<div class="res-card ${statusCls}" id="rc-${resId}" data-res="${resId}" data-item="${item.item_id}">
+    <div class="card-head">
+      <div style="flex:1;min-width:0">
+        <div class="subj">${esc(item.subject)}</div>
+        <div class="sender">${esc(item.sender||item.sender_email||'')}</div>
+        <div class="badges">
+          <span class="pill ${tierClass(item.tier)}">${esc(item.tier||'?')}</span>
+          <span class="pill p-type">${esc(TYPE_LABELS[item.item_type]||item.item_type||'—')}</span>
+          <span class="pill ${atierClass(item.automation_tier)}" title="Automation tier">${atierLabel(item.automation_tier)}</span>
+          ${item.res_status ? `<span class="pill ${statusClass(item.res_status)}">${esc(item.res_status)}</span>` : ''}
+          ${item.confidence != null ? `<span class="confidence">${Math.round(item.confidence*100)}% conf</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    ${item.verdict ? `<div class="sec"><div class="sec-label">Verdict</div><div class="sec-body">${esc(item.verdict)}</div></div>` : ''}
+
+    ${item.ask ? `<div class="sec">
+      <div class="sec-label">Ask — what's needed from Jordan</div>
+      <div class="ask-box">${esc(item.ask)}</div>
+    </div>` : ''}
+
+    ${item.decision ? `<div class="sec">
+      <div class="sec-label">Decision required</div>
+      <div class="decision-box">${esc(item.decision)}</div>
+    </div>` : ''}
+
+    ${item.next_steps && item.next_steps.length ? `<div class="sec">
+      <div class="sec-label">Next steps</div>
+      ${buildSteps(item.next_steps)}
+    </div>` : ''}
+
+    ${item.draft_action ? `<div class="sec">
+      <div class="sec-label">Staged action — review before doing anything</div>
+      <div class="draft-block">
+        <pre id="da-${resId}">${esc(item.draft_action)}</pre>
+        <button class="draft-copy" onclick="copyDraft('${resId}')">Copy</button>
+      </div>
+      <div class="draft-note">⚠ Nothing is sent by clicking. Jordan acts manually in the relevant app.</div>
+      ${threadUrl ? `<a class="gmail-link" href="${esc(safeUrl(threadUrl))}" target="_blank" rel="noopener">Open thread in Gmail ↗</a>` : ''}
+    </div>` : ''}
+
+    ${item.context && item.context.length ? `<div class="sec">
+      <div class="sec-label">Context sources</div>
+      ${buildContext(item.context)}
+    </div>` : ''}
+
+    ${item.note ? `<div class="sec"><div class="sec-label">Note</div><div class="sec-body" style="color:var(--dim)">${esc(item.note)}</div></div>` : ''}
+
+    <div class="card-acts">
+      <button class="btn primary" onclick="verb(${resId},'ack',this)" ${item.res_status==='ready'?'disabled':''}>Ack</button>
+      <button class="btn btn-act" onclick="verb(${resId},'act',this)" ${item.res_status==='acted'?'disabled':''}>✓ Done</button>
+      <button class="btn muted" onclick="verb(${resId},'snooze',this)">Snooze</button>
+      <button class="btn danger" onclick="verb(${resId},'dismiss',this)" ${item.res_status==='dismissed'?'disabled':''}>Dismiss</button>
+      <span style="flex:1"></span>
+      ${item.source_ref ? `<span class="confidence" style="font-size:11.5px">${esc(item.source_kind||'')} · ${esc(item.source_ref)}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function render(data){
+  // Update counts strip
+  const c = data.counts || {};
+  document.getElementById('counts-strip').innerHTML = [
+    { k:'Total', v: c.total||0 },
+    { k:'Unresolved', v: c.unresolved||0 },
+    { k:'Ready', v: c.ready||0 },
+    { k:'Acted', v: c.acted||0 },
+    { k:'Dismissed', v: c.dismissed||0 },
+    { k:'Auto-able', v: c.can_automate||0 },
+  ].map(x=>`<div class="cnt"><div class="v">${x.v}</div><div class="k">${x.k}</div></div>`).join('');
+
+  document.getElementById('hd-sub').textContent = `${c.total||0} items · ${new Date().toLocaleTimeString()}`;
+
+  const items = data.items || [];
+  if(!items.length){
+    document.getElementById('content').innerHTML = '<div class="empty">No needs-you items.</div>';
+    return;
+  }
+
+  // Group by item_type (resolved first, then unresolved)
+  const GROUPS = ['exec_escalation','jira_mention','doc_signoff','external_reply','meeting_followup','other',null];
+  const grouped = {};
+  for(const it of items){
+    const k = it.item_type || null;
+    if(!grouped[k]) grouped[k]=[];
+    grouped[k].push(it);
+  }
+
+  let html = '';
+  for(const g of GROUPS){
+    const list = grouped[g];
+    if(!list || !list.length) continue;
+    const label = TYPE_LABELS[g] || 'Unanalyzed';
+    html += `<h2>${label} <span style="font-weight:400">(${list.length})</span></h2>`;
+    // sort: resolved first by automation_tier desc, then unresolved
+    list.sort((a,b)=>{
+      if(a.resolved !== b.resolved) return a.resolved ? -1 : 1;
+      return (b.automation_tier??-1) - (a.automation_tier??-1);
+    });
+    for(const it of list) html += renderCard(it);
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+async function load(){
+  try{
+    document.getElementById('hd-sub').textContent = 'loading…';
+    const r = await fetch('/api/needs-you');
+    const data = await r.json();
+    render(data);
+  } catch(e){
+    document.getElementById('hd-sub').textContent = 'error: '+e.message;
+  }
+}
+
+async function verb(resId, action, btn){
+  btn.disabled = true;
+  try{
+    let body = {};
+    if(action === 'snooze'){
+      const u = prompt('Snooze until (ISO date, e.g. 2026-07-18T09:00):');
+      if(!u){ btn.disabled = false; return; }
+      body.until = u;
+    }
+    const r = await fetch(`/api/needs-you/${resId}/${action}`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    if(d.ok){
+      // Optimistic: update card appearance
+      const card = document.getElementById(`rc-${resId}`);
+      if(card){
+        card.classList.remove('status-ready','status-acted','status-dismissed','status-proposed');
+        const statusMap = { ack:'ready', act:'acted', dismiss:'dismissed', snooze:'snoozed' };
+        const ns = statusMap[action];
+        if(ns) card.classList.add(`status-${ns}`);
+        // update pill if present
+        const pill = card.querySelector('.pill.p-ready,.pill.p-proposed,.pill.p-acted,.pill.p-dismissed');
+        if(pill){
+          pill.className = `pill p-${ns||action}`;
+          pill.textContent = ns||action;
+        }
+      }
+    }
+  } catch(e){
+    alert('Error: '+e.message);
+    btn.disabled = false;
+  }
+}
+
+function copyDraft(resId){
+  const pre = document.getElementById('da-'+resId);
+  if(!pre) return;
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    const btn = pre.parentNode.querySelector('.draft-copy');
+    if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',2000); }
+  });
+}
+
+load();
+</script>
+</body>
+</html>

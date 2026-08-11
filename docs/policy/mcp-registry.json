@@ -1,0 +1,78 @@
+{
+  "_comment": "Canonical MCP set for Amp's Claude-Code harness. SSOT for ~/.claude.json mcpServers. Restorer: harness/claude-code/sync-mcp-registry.sh. Drift detector: harness/claude-code/sync-mcp-registry.sh --check. Built 2026-06-25 after the May-12-drift incident (7 guMCP entries silently disappeared); this file makes the set self-healing. NO SECRETS IN THIS FILE — the mcpgw shared token lives at ~/.config/amp/mcpgw.token (gitignored by location). internal.tools proxy entries auth via Claude Code's in-session OAuth and don't need a static token.",
+  "version": 1,
+  "secret_token_path": "~/.config/amp/mcpgw.token",
+  "secret_token_format": "single-line: <userid>:<token>:<base64({\"external_client\":true})>",
+  "servers": [
+    {
+      "name": "glean",
+      "purpose": "Glean enterprise search (internal.tools proxy). search/read_document/chat across Acme's Slack/Docs/Jira/Confluence/GitHub.",
+      "type": "http",
+      "url": "https://mcp.internal.tools/api/v1/proxy/00000000-0000-0000-0000-000000000001/mcp",
+      "auth": "session"
+    },
+    {
+      "name": "glean_default",
+      "purpose": "Glean direct (acme-be.glean.com). Same capabilities as above; used by some Anthropic-shipped agents that hardcode this URL.",
+      "type": "http",
+      "url": "https://acme-be.glean.com/mcp/default",
+      "auth": "session"
+    },
+    {
+      "name": "datadog-via-cookbook",
+      "purpose": "Datadog (internal.tools proxy). Metrics, logs, monitors.",
+      "type": "http",
+      "url": "https://mcp.internal.tools/api/v1/proxy/00000000-0000-0000-0000-000000000002/mcp",
+      "auth": "session"
+    },
+    {
+      "name": "slack-guMCP-server",
+      "purpose": "Slack — 31 tools incl. send_message, archive/create_channel, get_conversation_info, list_channels, search.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/slack/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "gmail-guMCP-server",
+      "purpose": "Gmail — 19 tools. send/forward/trash/archive/delete all hard-denied by floor; drafts allowed.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/gmail/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "gcalendar-guMCP-server",
+      "purpose": "Google Calendar — 13 tools. All writes (create/update/delete/move event, manage_attendee/acl_rule, RSVPs) hard-denied by floor; reads allowed.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/gcalendar/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "gdrive-guMCP-server",
+      "purpose": "Google Drive — 12 tools. Non-share writes allowed (drive_write rule); add_file_sharing_preference and bare delete hard-denied.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/gdrive/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "gdocs-guMCP-server",
+      "purpose": "Google Docs — 6 tools (read_doc, create_doc, update_doc, insert_table, update_table_cell, list_tabs).",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/gdocs/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "gsheets-guMCP-server",
+      "purpose": "Google Sheets — 16 tools.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/gsheets/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    },
+    {
+      "name": "confluence-guMCP-server",
+      "purpose": "Confluence — 17 tools. Writes (create/update_page, create/update_blogpost, update_task, upload_attachment) hard-denied by floor per ADR-0001; reads allowed.",
+      "type": "http",
+      "url_template": "https://mcp.mcpgw.com/confluence/{TOKEN}/mcp",
+      "auth": "shared_mcpgw_token"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Amp Fleet Console</title>
+<style>
+  :root{
+    --bg:#0b0f0c; --panel:#11161300; --card:#141a16; --line:#243026;
+    --ink:#e8f0ea; --dim:#8ba394; --green:#43B02A; --green2:#7BE05A;
+    --amber:#E8B23A; --red:#ff6b6b; --blue:#5aa9e0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:20px 28px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:19px;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--dim);font-size:12.5px}
+  header a{color:var(--green2);text-decoration:none;font-size:12.5px}
+  main{padding:22px 28px;max-width:1200px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .card .k{color:var(--dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:26px;font-weight:680;margin-top:4px;letter-spacing:-.02em}
+  .card .v small{font-size:13px;color:var(--dim);font-weight:500}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin:26px 0 10px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid #1b241d;vertical-align:top}
+  tr:hover td{background:#0f1511}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+  .p-ok{background:rgba(67,176,42,.16);color:var(--green2)}
+  .p-noise{background:rgba(232,178,58,.15);color:var(--amber)}
+  .p-esc{background:rgba(255,107,107,.15);color:var(--red)}
+  .p-run{background:rgba(90,169,224,.15);color:var(--blue)}
+  .p-host{background:#1b241d;color:var(--dim)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--dim)}
+  .conf{font-variant-numeric:tabular-nums;color:var(--dim)}
+  .read{color:var(--ink)}
+  .next{color:var(--dim);font-size:12.5px}
+  .esc-row td{background:rgba(255,107,107,.05)}
+  .empty{color:var(--dim);padding:20px 10px;font-style:italic}
+  .refresh{margin-left:auto;color:var(--dim);font-size:12px;cursor:pointer;border:1px solid var(--line);padding:4px 12px;border-radius:8px;background:var(--card)}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .live{background:var(--green)} .stale{background:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🤖 Amp Fleet Console</h1>
+  <span class="sub" id="sub">loading…</span>
+  <a href="/">← control plane</a>
+  <span class="refresh" onclick="load()">↻ refresh</span>
+</header>
+<main>
+  <div class="cards" id="cards"></div>
+
+  <h2>Workers</h2>
+  <table id="workers"><thead><tr>
+    <th>Worker</th><th>Runs</th><th>Last run</th><th>Staged</th><th>Noise</th><th>Escalations</th><th>Errors</th><th>Tokens</th>
+  </tr></thead><tbody></tbody></table>
+
+  <h2 id="esc-heading">Escalations (open)</h2>
+  <table id="escalations"><thead><tr>
+    <th>Task</th><th>Read</th><th>Next step</th><th>Owner</th><th>Conf</th><th>When</th>
+  </tr></thead><tbody></tbody></table>
+
+  <h2>Runs</h2>
+  <table id="runs"><thead><tr>
+    <th>Started</th><th>Worker</th><th>Host</th><th>Model</th><th>Status</th><th>Reasoned</th><th>Staged</th><th>Noise</th><th>Esc</th><th>Err</th><th>Tokens</th>
+  </tr></thead><tbody></tbody></table>
+
+  <h2>Recent decisions</h2>
+  <table id="decisions"><thead><tr>
+    <th>Verdict</th><th>Task</th><th>Bucket</th><th>Read</th><th>Next step</th><th>Owner</th><th>Conf</th><th>When</th>
+  </tr></thead><tbody></tbody></table>
+</main>
+
+<script src="shared.js"></script>
+<script>
+// esc()/safeUrl() come from shared.js (canonical; the old local esc never escaped ').
+const ago = ts => { if(!ts) return '—'; const d=(Date.now()-new Date(ts.replace(' ','T')+'Z').getTime())/1000;
+  if(d<60)return 'just now'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; };
+const num = n => (n==null?'0':Number(n).toLocaleString());
+const conf = c => c==null?'—':Math.round(c*100)+'%';
+const vpill = d => d.escalate? '<span class="pill p-esc">🔴 escalate</span>' : d.noise? '<span class="pill p-noise">🟡 noise</span>' : '<span class="pill p-ok">🟢 staged</span>';
+const spill = s => `<span class="pill ${s==='ok'?'p-ok':s==='running'?'p-run':s==='degraded'||s==='crashed'?'p-esc':'p-noise'}">${esc(s)}</span>`;
+const tasklbl = d => d.task_id? `<span class="mono">#${d.task_id}</span> ${esc((d.task_title||'').slice(0,44))}` : '—';
+
+async function load(){
+  let data;
+  try { data = await (await fetch('/api/fleet?runs=40&decisions=120')).json(); }
+  catch(e){ document.getElementById('sub').textContent='fleet API unreachable'; return; }
+  const {runs=[],decisions=[],workers=[],summary={}} = data;
+
+  const live = summary.last_run && (Date.now()-new Date(summary.last_run.replace(' ','T')+'Z').getTime()) < 3600e3;
+  document.getElementById('sub').innerHTML =
+    `<span class="dot ${live?'live':'stale'}"></span>last run ${ago(summary.last_run)} · ${num(summary.total_runs)} runs · ${num(summary.total_decisions)} decisions`;
+
+  // Escalation trust: open_escalations is an all-time backlog; what matters is how
+  // many were ever acted on. Pull that from /api/value so 307-open reads as "mostly
+  // stale noise" (its true meaning) rather than 307 live fires.
+  let acted = null, usefulness = null;
+  try {
+    const val = await (await fetch('/api/value')).json();
+    if (val && val.available) { acted = val.escalations_acted; usefulness = val.escalation_usefulness_pct; }
+  } catch(e){ /* value optional — card still renders the raw count */ }
+  const openEsc = summary.open_escalations||0;
+  const escSub = (acted!=null)
+    ? `${num(acted)} acted · ${usefulness}% useful`
+    : '';
+
+  document.getElementById('cards').innerHTML = [
+    ['Open escalations', openEsc, openEsc? 'p-esc':'', escSub],
+    ['Total decisions', num(summary.total_decisions)],
+    ['Fleet runs', num(summary.total_runs)],
+    ['Workers', workers.length],
+    ['Tokens (all-time)', num(summary.tokens)],
+  ].map(([k,v,cls,sub])=>`<div class="card"><div class="k">${k}</div><div class="v ${cls||''}" ${cls==='p-esc'?'style="color:var(--red)"':''}>${v}</div>${sub?`<div class="k" style="margin-top:4px;opacity:.75">${sub}</div>`:''}</div>`).join('');
+
+  document.querySelector('#workers tbody').innerHTML = workers.length? workers.map(w=>`<tr>
+    <td><b>${esc(w.worker)}</b></td><td>${num(w.runs)}</td><td class="conf">${ago(w.last_run)}</td>
+    <td>${num(w.staged)}</td><td>${num(w.noise)}</td><td>${w.escalations>0?`<span class="pill p-esc">${w.escalations}</span>`:'0'}</td>
+    <td>${w.errors>0?`<span class="pill p-noise">${w.errors}</span>`:'0'}</td><td class="conf">${num(w.tokens)}</td></tr>`).join('')
+    : '<tr><td colspan="8" class="empty">No fleet runs recorded yet.</td></tr>';
+
+  const escs = decisions.filter(d=>d.escalate);
+  // #9 reconciliation: the card counts ALL open escalations (all-time); this table
+  // only holds those inside the fetched decision window. Say so, instead of letting
+  // "307" and a 44-row table silently contradict each other.
+  const escHead = document.getElementById('esc-heading');
+  if (escHead) escHead.textContent = (openEsc > escs.length)
+    ? `Escalations (open) — ${escs.length} most recent of ${num(openEsc)}`
+    : `Escalations (open) — ${escs.length}`;
+  document.querySelector('#escalations tbody').innerHTML = escs.length? escs.map(d=>`<tr class="esc-row">
+    <td>${tasklbl(d)}</td><td class="read">${esc(d.read)}</td><td class="next">${esc(d.next_step)}</td>
+    <td>${esc(d.owner)}</td><td class="conf">${conf(d.confidence)}</td><td class="conf">${ago(d.created_at)}</td></tr>`).join('')
+    : '<tr><td colspan="6" class="empty">No open escalations. 🟢</td></tr>';
+
+  document.querySelector('#runs tbody').innerHTML = runs.length? runs.map(r=>`<tr>
+    <td class="conf">${ago(r.started_at)}</td><td>${esc(r.worker)}</td><td><span class="pill p-host">${esc(r.host)}</span></td>
+    <td class="mono">${esc((r.model||'').replace('claude-',''))}</td><td>${spill(r.status)}</td>
+    <td>${num(r.reasoned)}</td><td>${num(r.staged)}</td><td>${num(r.noise)}</td>
+    <td>${r.escalated>0?`<span class="pill p-esc">${r.escalated}</span>`:'0'}</td><td>${r.errors||0}</td>
+    <td class="conf">${num((r.input_tokens||0)+(r.output_tokens||0))}</td></tr>`).join('')
+    : '<tr><td colspan="11" class="empty">No runs yet.</td></tr>';
+
+  document.querySelector('#decisions tbody').innerHTML = decisions.length? decisions.map(d=>`<tr>
+    <td>${vpill(d)}</td><td>${tasklbl(d)}</td><td class="mono">${esc(d.bucket)}</td>
+    <td class="read">${esc((d.read||'').slice(0,90))}</td><td class="next">${esc((d.next_step||'').slice(0,70))}</td>
+    <td>${esc(d.owner)}</td><td class="conf">${conf(d.confidence)}</td><td class="conf">${ago(d.created_at)}</td></tr>`).join('')
+    : '<tr><td colspan="8" class="empty">No decisions yet.</td></tr>';
+}
+load();
+// Skip polling while the tab is hidden (#27); refresh immediately on return.
+setInterval(() => { if (!document.hidden) load(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

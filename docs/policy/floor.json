@@ -1,0 +1,109 @@
+{
+  "_comment": "Portable safety FLOOR as data (ADR-0001 trust model + ADR-0008 egress). Reader: harness/claude-code/guard.py. Proven by harness/claude-code/golden_test.py. Eval order: hard_deny -> slack_send -> drive_write -> fs_write -> bash_deny -> default allow. Fail mode closed (parse error => deny). v2 INTENTIONALLY diverges from the legacy nova-guard: (a) Amp is a first-party coder with broad local authority, so fs_write allow_roots is the whole home tree + /tmp (legacy was 4 narrow roots); (b) in exchange, secret material is hard-denied across BOTH the write tools AND bash (legacy left bash writes/reads ungated) — closing the bash bypass. The outward gates (slack, drive) are unchanged.",
+  "_comment_v3": "v3 (ADR-0015, 2026-07-16): REVERSIBLE inbox hygiene is no longer hard-denied — archive_email, trash_email (Gmail's recoverable 30-day bin), batch_update_emails, and gmail update_email (label mods) now fall through to default_allow. This RESTORES ADR-0001's original posture ('archive noise: allowed', 'label/move reversible: allowed') that the v2 clamp over-tightened. Safety for these moved UP the stack: a deterministic guardrail layer + an independent review agent + batch approval + a full undo log (apps/amp-tasks/inbox-sweep.js, review-agent.js). The floor's job here narrows to its honest core: PERMANENT destruction stays hard-denied — every delete_* (incl. delete_email, delete_draft, delete_label) and the bare __delete tool remain blocked. Nothing the sweeper does is irreversible.",
+  "version": 3,
+
+  "sensitive_path_patterns": [
+    "/\\.ssh(/|$)",
+    "/\\.aws(/|$)",
+    "/\\.azure(/|$)",
+    "/\\.gnupg(/|$)",
+    "/\\.kube(/|$)",
+    "/\\.config/gh(/|$)",
+    "/\\.git-credentials(\\b|$)",
+    "/\\.docker/config\\.json",
+    "/\\.npmrc(\\b|$)",
+    "/\\.pypirc(\\b|$)",
+    "/\\.gem/credentials",
+    "/Library/Keychains(/|$)",
+    "/\\.internalcloud(/|$)",
+    "/\\.devbox(/|$)",
+    "(^|/)\\.env(\\.|$)",
+    "\\.pem(\\b|$)",
+    "\\.key(\\b|$)",
+    "/secrets?(/|$)",
+    "/credentials(/|$)",
+    "\\bid_(rsa|ed25519|ecdsa|dsa)\\b"
+  ],
+  "fail_mode": "closed",
+  "log": "/Users/you/.claude/projects/-Users-you/memory/routines.jsonl",
+  "eval_order": ["hard_deny", "slack_send", "drive_write", "fs_write", "bash_deny", "default_allow"],
+
+  "hard_deny_tool_patterns": [
+    {"pattern": "^mcp__.*gmail.*__send_email$",          "reason": "gmail send is hard-blocked (ADR-0001). Use create_draft."},
+    {"pattern": "^mcp__.*gmail.*__forward_email$",        "reason": "gmail forward is hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__create_event$",                "reason": "calendar writes are hard-blocked (ADR-0001). Jordan only."},
+    {"pattern": "^mcp__.*__update_event$",                "reason": "calendar writes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__delete_event$",                "reason": "calendar deletes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__respond_to_event$",            "reason": "calendar RSVPs are hard-blocked (ADR-0001). Jordan only."},
+    {"pattern": "^mcp__.*__update_attendee_status$",      "reason": "calendar attendee changes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__manage_attendee$",             "reason": "calendar attendee changes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__move_event$",                  "reason": "calendar moves are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__delete_.*$",                   "reason": "delete operations are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*__delete$",                      "reason": "bare delete is hard-blocked (ADR-0001) — catches gdrive's __delete tool."},
+    {"pattern": "^mcp__.*__manage_acl_rule$",             "reason": "calendar ACL/sharing changes are hard-blocked (ADR-0008 egress)."},
+    {"pattern": "^mcp__.*__remove_canvas_access$",        "reason": "slack canvas access removal is hard-blocked."},
+    {"pattern": "^mcp__.*__set_canvas_access$",           "reason": "slack canvas access grants are hard-blocked (ADR-0008 egress)."},
+    {"pattern": "^mcp__.*__send_ephemeral_message$",      "reason": "slack ephemeral sends are still sends — gated like send_message."},
+    {"pattern": "^mcp__.*__add_file_sharing_preference$", "reason": "drive sharing changes are hard-blocked (ADR-0008 egress)."},
+    {"pattern": "^mcp__.*confluence.*__create_page$",     "reason": "confluence writes are hard-blocked (SSOT BOOT: outward actuators stay denied)."},
+    {"pattern": "^mcp__.*confluence.*__update_page$",     "reason": "confluence writes are hard-blocked (SSOT BOOT)."},
+    {"pattern": "^mcp__.*confluence.*__create_blogpost$", "reason": "confluence writes are hard-blocked (SSOT BOOT)."},
+    {"pattern": "^mcp__.*confluence.*__update_blogpost$", "reason": "confluence writes are hard-blocked (SSOT BOOT)."},
+    {"pattern": "^mcp__.*confluence.*__update_task$",     "reason": "confluence task mutation is hard-blocked (SSOT BOOT)."},
+    {"pattern": "^mcp__.*confluence.*__upload_attachment$","reason": "confluence attachment upload is hard-blocked (SSOT BOOT)."},
+    {"pattern": "^mcp__.*jira.*__create_.*$",             "reason": "jira writes are hard-blocked (ADR-0001: outward/irreversible actuators stay Jordan-only). fetch-jira.js is read-only."},
+    {"pattern": "^mcp__.*jira.*__update_.*$",             "reason": "jira writes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*jira.*__delete_.*$",             "reason": "jira deletes are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*jira.*__transition_.*$",         "reason": "jira status transitions are hard-blocked (ADR-0001) — Jordan moves his own issues."},
+    {"pattern": "^mcp__.*jira.*__comment_.*$",            "reason": "jira comments are outward writes — hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*jira.*__add_.*$",                "reason": "jira mutations (attachments, watchers, group membership) are hard-blocked (ADR-0001)."},
+    {"pattern": "^mcp__.*jira.*__remove_.*$",             "reason": "jira group/membership removals are hard-blocked (ADR-0001)."}
+  ],
+
+  "slack_send": {
+    "_comment": "Preserves Python precedence: match if (slack_send_message) OR (send_message AND 'slack' substring). All regex re.I. Once matched, ALWAYS exits (allow or deny) - never falls through.",
+    "match_any": [
+      {"pattern": "^mcp__.*__slack_send_message$"},
+      {"pattern": "^mcp__.*__send_message$", "require_substring": "slack"}
+    ],
+    "channel_field_candidates": ["channel_id", "channel"],
+    "empty_channel": "deny",
+    "allow_dm_prefixes": ["D", "G"],
+    "allow_dm_min_len": 9,
+    "channel_id_whitelist": ["C0AMPBRIEF", "C0AMPALERT", "C0AMPSTG"],
+    "_channel_id_whitelist_note": "amp-brief=C0AMPBRIEF, amp-alerts=C0AMPALERT, amp-brief-staging=C0AMPSTG (created 2026-06-25). Old nova-brief=C0LEGACY01 archived same day; nova-alerts and nova-brief-staging never existed as real channels.",
+    "channel_name_whitelist": ["amp-brief", "amp-alerts", "amp-brief-staging"],
+    "deny_reason": "slack channel not in whitelist (ADR-0008)"
+  },
+
+  "drive_write": {
+    "_comment": "If matched AND 'drive' substring, ALWAYS allow (non-share write). Sharing changes are caught earlier by hard_deny add_file_sharing_preference.",
+    "pattern": "^mcp__.*__(create_file|upload_file|copy_file|move_file|update_name|create_folder.*)$",
+    "require_substring": "drive",
+    "decision": "allow"
+  },
+
+  "fs_write": {
+    "tools": ["Write", "Edit", "NotebookEdit"],
+    "target_field_candidates": ["file_path", "notebook_path"],
+    "_comment": "Eval: empty target => allow. Else if target matches sensitive_path_patterns => DENY (secrets, any root). Else if target under no allow_root => DENY. Else allow. allow_roots is broad (home + tmp) by design; secrets are the real gate.",
+    "allow_roots": [
+      "/Users/you/",
+      "/tmp/"
+    ]
+  },
+
+  "bash_deny": {
+    "tool": "Bash",
+    "command_field": "command",
+    "deny_patterns": [
+      "\\brm\\s+-rf\\s+/(?!Users/you/Desktop/(nova|amp))",
+      "\\b(mkfs|dd\\s+if=)"
+    ],
+    "_sensitive_comment": "If the command references a sensitive_path AND shows read or write intent toward it, deny. Closes the bash bypass that left ~/.ssh etc. ungated. Read-intent is re.I.",
+    "sensitive_write_intent": ">>?|\\btee\\b|\\bcp\\b|\\bmv\\b|\\bdd\\b|sed\\s+-i|\\binstall\\b|\\btruncate\\b",
+    "sensitive_read_intent": "\\b(cat|less|more|head|tail|strings|xxd|od|base64|nl|cp|scp|rsync)\\b",
+    "sensitive_reason": "bash access to secret material is blocked (ADR-0001; no secrets into GenAI)"
+  }
+}
