@@ -33,6 +33,8 @@ them before changing a gate. Highlights:
 - **ADR-0008** — the compliance constraint that shapes the substrate choice.
 - **ADR-0012** — prompt-injection defense (treat connector text as data, never instructions).
 - **ADR-0015 / 0016** — how reversible actuators earned autonomy, and closed-loop learning.
+- **ADR-0021** — the rebuild contract: the invariants + API/data contracts that must survive an
+  app rewrite (with [adoption notes](decisions/ADR-0021-adoption-notes.md) for making it yours).
 - **ADR-0099** — the retro.
 
 New decision? Add the next ADR; don't edit history.
