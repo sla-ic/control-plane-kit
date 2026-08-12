@@ -3,18 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payments — Learn</title>
+<title>Control Plane — Learn</title>
 <style>
-  @font-face {
-    font-family: 'Glacial Indifference';
-    src: url('/fonts/GlacialIndifference-Regular.ttf') format('truetype');
-    font-weight: 400; font-style: normal; font-display: swap;
-  }
-  @font-face {
-    font-family: 'Glacial Indifference';
-    src: url('/fonts/GlacialIndifference-Bold.ttf') format('truetype');
-    font-weight: 700; font-style: normal; font-display: swap;
-  }
   :root {
     --bg: #0c0e14;
     --surface: #13151f;
@@ -37,7 +27,7 @@
     --sidebar-w: 220px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: inherit; }
-  body { background: var(--bg); color: var(--text); font-family: 'Glacial Indifference', -apple-system, sans-serif; font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; height: 100vh; display: flex; overflow: hidden; }
 
   /* SIDEBAR */
   .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
@@ -250,7 +240,7 @@
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-title">Payments</div>
+    <div class="sidebar-title">Control Plane</div>
     <div class="sidebar-sub">Learning System</div>
   </div>
   <div class="nav-section">
@@ -260,7 +250,7 @@
     </button>
     <button class="nav-item" onclick="showView('learn')">
       <span class="icon">📖</span> Learn
-      <span class="nav-badge" id="learn-badge">0/19</span>
+      <span class="nav-badge" id="learn-badge">0/8</span>
     </button>
     <button class="nav-item" onclick="showView('drill')">
       <span class="icon">⚡</span> Drill
@@ -271,7 +261,7 @@
     </button>
     <button class="nav-item" onclick="showView('jargon')">
       <span class="icon">📚</span> Jargon
-      <span class="nav-badge" id="jargon-badge">49</span>
+      <span class="nav-badge" id="jargon-badge">12</span>
     </button>
     <button class="nav-item" onclick="showView('connections')">
       <span class="icon">🕸</span> Connections
@@ -312,7 +302,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-label">Modules Read</div>
-        <div class="stat-value green" id="stat-modules">0/19</div>
+        <div class="stat-value green" id="stat-modules">0/8</div>
         <div class="stat-sub">modules completed</div>
       </div>
       <div class="stat-card">
@@ -372,13 +362,13 @@
       <div class="drill-filter-bar" id="drill-filter-bar">
         <div class="filter-chip active" onclick="selectDeck('all', this)">All Terms</div>
         <div class="filter-chip" onclick="selectDeck('due', this)">Due Now</div>
-        <div class="filter-chip" onclick="selectDeck('infrastructure', this)">Infrastructure</div>
-        <div class="filter-chip" onclick="selectDeck('fraud', this)">Fraud</div>
-        <div class="filter-chip" onclick="selectDeck('economics', this)">Economics</div>
-        <div class="filter-chip" onclick="selectDeck('regulatory', this)">Regulatory</div>
-        <div class="filter-chip" onclick="selectDeck('payments', this)">Payments</div>
-        <div class="filter-chip" onclick="selectDeck('processors', this)">Processors</div>
-        <div class="filter-chip" onclick="selectDeck('strategy', this)">Strategy</div>
+        <div class="filter-chip" onclick="selectDeck('core', this)">Core</div>
+        <div class="filter-chip" onclick="selectDeck('architecture', this)">Architecture</div>
+        <div class="filter-chip" onclick="selectDeck('governance', this)">Governance</div>
+        <div class="filter-chip" onclick="selectDeck('safety', this)">Safety</div>
+        <div class="filter-chip" onclick="selectDeck('state', this)">State</div>
+        <div class="filter-chip" onclick="selectDeck('integration', this)">Integration</div>
+        <div class="filter-chip" onclick="selectDeck('comms', this)">Comms</div>
       </div>
       <div class="drill-main" id="drill-main">
         <div class="card-container" id="card-container">
@@ -408,18 +398,18 @@
     <div class="jargon-layout">
       <div class="jargon-header">
         <div class="jargon-title">📚 Jargon & Acronyms</div>
-        <div class="jargon-sub">49 terms. Know them cold.</div>
+        <div class="jargon-sub">12 terms. Know them cold.</div>
       </div>
       <input class="jargon-search" id="jargon-search" placeholder="Search terms..." oninput="filterJargon()">
       <div class="jargon-filter-row" id="jargon-filter-row">
         <div class="filter-chip active" onclick="setJargonCat('all', this)">All</div>
-        <div class="filter-chip" onclick="setJargonCat('infrastructure', this)">Infrastructure</div>
-        <div class="filter-chip" onclick="setJargonCat('fraud', this)">Fraud</div>
-        <div class="filter-chip" onclick="setJargonCat('payments', this)">Payments</div>
-        <div class="filter-chip" onclick="setJargonCat('regulatory', this)">Regulatory</div>
-        <div class="filter-chip" onclick="setJargonCat('economics', this)">Economics</div>
-        <div class="filter-chip" onclick="setJargonCat('processors', this)">Processors</div>
-        <div class="filter-chip" onclick="setJargonCat('strategy', this)">Strategy</div>
+        <div class="filter-chip" onclick="setJargonCat('core', this)">Core</div>
+        <div class="filter-chip" onclick="setJargonCat('architecture', this)">Architecture</div>
+        <div class="filter-chip" onclick="setJargonCat('governance', this)">Governance</div>
+        <div class="filter-chip" onclick="setJargonCat('safety', this)">Safety</div>
+        <div class="filter-chip" onclick="setJargonCat('state', this)">State</div>
+        <div class="filter-chip" onclick="setJargonCat('integration', this)">Integration</div>
+        <div class="filter-chip" onclick="setJargonCat('comms', this)">Comms</div>
       </div>
       <div class="jargon-grid" id="jargon-grid"></div>
     </div>
@@ -444,15 +434,15 @@
 // STATE
 // ═══════════════════════════════════════
 const LEVELS = [
-  { level: 1, title: 'Checkout Novice', xp: 0 },
-  { level: 2, title: 'Buyflow', xp: 500 },
-  { level: 3, title: 'Financier', xp: 1500 },
-  { level: 4, title: 'Cashier', xp: 3000 },
-  { level: 5, title: 'PGS', xp: 6000 },
-  { level: 6, title: 'VGS', xp: 10000 },
-  { level: 7, title: 'Processor', xp: 15000 },
-  { level: 8, title: 'Platform Architect', xp: 25000 },
-  { level: 9, title: 'Payments PM', xp: 40000 },
+  { level: 1, title: 'Novice', xp: 0 },
+  { level: 2, title: 'Booted', xp: 500 },
+  { level: 3, title: 'Identity', xp: 1500 },
+  { level: 4, title: 'Register', xp: 3000 },
+  { level: 5, title: 'Floor Keeper', xp: 6000 },
+  { level: 6, title: 'Decider', xp: 10000 },
+  { level: 7, title: 'Continuity', xp: 15000 },
+  { level: 8, title: 'Orchestrator', xp: 25000 },
+  { level: 9, title: 'Control Plane Architect', xp: 40000 },
 ];
 
 let STATE = {
@@ -475,13 +465,13 @@ let jargonCatFilter = 'all';
 
 function loadState() {
   try {
-    const s = localStorage.getItem('payments-learn-state');
+    const s = localStorage.getItem('control-plane-learn-state');
     if (s) STATE = { ...STATE, ...JSON.parse(s) };
   } catch(e) {}
 }
 
 function saveState() {
-  localStorage.setItem('payments-learn-state', JSON.stringify(STATE));
+  localStorage.setItem('control-plane-learn-state', JSON.stringify(STATE));
 }
 
 function getLevel() {

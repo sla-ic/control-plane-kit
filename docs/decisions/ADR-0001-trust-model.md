@@ -7,7 +7,7 @@
 
 ## Context
 
-Nova operates with Jordan's credentials across Gmail, Slack, Calendar, Drive, Atlassian. Jordan oversees a $30B/yr payments platform — irreversible actions taken in his name have outsized consequences (wrong email to a partner, accidentally archived board comm, RSVP-declined to a critical meeting). The trust model must be explicit and enforced in code, not policy docs.
+Nova operates with Jordan's credentials across Gmail, Slack, Calendar, Drive, Atlassian. Jordan operates in a high-stakes, high-trust role — irreversible actions taken in his name have outsized consequences (wrong email to a partner, accidentally archived board comm, RSVP-declined to a critical meeting). The trust model must be explicit and enforced in code, not policy docs.
 
 A trust model encoded as natural-language guidance in SKILL.md files is unenforceable. Hooks in `settings.json` are enforceable.
 
