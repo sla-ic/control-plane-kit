@@ -83,9 +83,20 @@ for (const [route, ok] of ROUTES) {
 }
 
 // Dynamic routes — resolve a real task id first, then exercise the per-item surface.
+// On a fresh clone the DB is empty, so seed one task via the public POST route
+// rather than asserting pre-existing data (keeps `npm test` green out of the box).
 test('per-task routes (detail / comments / links / delegations)', async () => {
-  const { json: tasks } = await get('/api/tasks');
-  assert.ok(Array.isArray(tasks) && tasks.length, 'need at least one task to smoke per-task routes');
+  let { json: tasks } = await get('/api/tasks');
+  if (!(Array.isArray(tasks) && tasks.length)) {
+    const r = await fetch(BASE + '/api/tasks', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'smoke-test seed task' }),
+    });
+    assert.ok(r.status < 400, `seeding a task failed: ${r.status}`);
+    ({ json: tasks } = await get('/api/tasks'));
+  }
+  assert.ok(Array.isArray(tasks) && tasks.length, 'expected at least one task after seeding');
   const id = tasks[0].id;
   for (const suffix of ['', '/comments', '/links', '/delegations']) {
     const { status, json } = await get(`/api/tasks/${id}${suffix}`);

@@ -29,58 +29,9 @@ const SEED = path.join(__dirname, 'seed');
 const rd = f => JSON.parse(fs.readFileSync(path.join(SEED, f), 'utf8'));
 
 // ── schema (idempotent) ──────────────────────────────────────────────────
-db.exec(`
-  CREATE TABLE IF NOT EXISTS planner_weeks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL,
-    sort INTEGER NOT NULL, label TEXT NOT NULL, quarter TEXT,
-    UNIQUE(org, period, sort)
-  );
-  CREATE TABLE IF NOT EXISTS planner_people (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL,
-    sort INTEGER NOT NULL, name TEXT NOT NULL, platform TEXT, role TEXT,
-    UNIQUE(org, period, name)
-  );
-  CREATE TABLE IF NOT EXISTS planner_cells (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL,
-    person TEXT NOT NULL, sort INTEGER NOT NULL, text TEXT,
-    UNIQUE(org, period, person, sort)
-  );
-  CREATE TABLE IF NOT EXISTS planner_workstreams (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL, sort INTEGER,
-    symbol TEXT, quarter TEXT, ticket TEXT, name TEXT, status TEXT,
-    be_effort TEXT, fe_effort TEXT, owners TEXT, notes TEXT, section TEXT
-  );
-  CREATE TABLE IF NOT EXISTS planner_features (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL, sort INTEGER,
-    feature TEXT, theme TEXT, okr TEXT, priority TEXT, source TEXT, doc TEXT,
-    eng TEXT, week_size TEXT, scope_confidence TEXT, launch TEXT,
-    prd_erd TEXT, notes TEXT, impacc TEXT, pcr TEXT, section TEXT
-  );
-  CREATE TABLE IF NOT EXISTS planner_capacity (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL, sort INTEGER,
-    label TEXT, value TEXT, col3 TEXT, col4 TEXT
-  );
-  CREATE TABLE IF NOT EXISTS planner_jira (
-    key TEXT PRIMARY KEY,
-    summary TEXT, status TEXT, status_category TEXT, priority TEXT
-  );
-  CREATE TABLE IF NOT EXISTS planner_projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, period TEXT NOT NULL, sort INTEGER,
-    key TEXT, name TEXT, pcr TEXT, pcr_all TEXT,
-    theme TEXT, okr TEXT, priority TEXT, quarter TEXT, half TEXT,
-    owners TEXT, sheet_status TEXT, section TEXT,
-    span_first INTEGER, span_last INTEGER, span_weeks INTEGER, eng TEXT, notes TEXT,
-    best_name TEXT, aliases TEXT, summary TEXT, status_narrative TEXT,
-    doc_refs TEXT, confidence REAL, last_enriched TEXT
-  );
-`);
+// DDL is shared with db.js's boot self-heal via planner-schema.js — one source
+// of truth so a fresh clone's planner route works before this seeder ever runs.
+db.exec(require('./planner-schema'));
 
 // idempotent migration: add enrichment columns to pre-existing DBs
 for (const col of ['best_name TEXT', 'aliases TEXT', 'summary TEXT',

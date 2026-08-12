@@ -192,6 +192,23 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
 `);
+// project_artifacts: the evidence rows synthesis draws from (PRD/ERD/Slack/Jira
+// snippets), FK'd by decisions.source_artifact_id above. Same story as decisions
+// — it only ever lived in the runtime DB, so a fresh clone 500s on every route
+// that joins it (/api/decisions, /api/roadmap-tree, …). Codify it here.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS project_artifacts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+    kind TEXT,                            -- prd | erd | slack | jira | doc | …
+    title TEXT,
+    url TEXT,
+    snippet TEXT,
+    author TEXT,
+    ts TEXT,
+    raw_json TEXT
+  );
+`);
 // Self-heal the rich projects columns (no-ops where they already exist).
 const projectSelfHeal = [
   "ALTER TABLE projects ADD COLUMN roadmap TEXT",
@@ -210,6 +227,23 @@ const projectSelfHeal = [
   "ALTER TABLE projects ADD COLUMN last_synthesis_at TEXT",
 ];
 for (const sql of projectSelfHeal) { try { db.exec(sql); } catch (e) {} }
+
+// Self-heal tasks columns that server routes read directly but that were only
+// ever added lazily by enrichment scripts (canonical-priority.js, sync-jira.js).
+// Without these, a fresh clone 500s on /api/importance-drift and /api/activity
+// before those scripts have ever run. Codify so the schema stands on its own.
+const tasksSelfHeal = [
+  "ALTER TABLE tasks ADD COLUMN importance TEXT",              // canonical real-state P-scale
+  "ALTER TABLE tasks ADD COLUMN importance_source TEXT DEFAULT 'computed'", // computed | adjudicated
+  "ALTER TABLE tasks ADD COLUMN importance_score INTEGER",     // transparent rubric score 0-100
+  "ALTER TABLE tasks ADD COLUMN jira_key TEXT",                // linked Jira issue key
+];
+for (const sql of tasksSelfHeal) { try { db.exec(sql); } catch (e) {} }
+
+// planner_* tables back /api/planner/:org. Same story as above — they only ever
+// existed after import-planners.js seeded them, so a fresh clone 500'd the
+// planner route. DDL is shared (planner-schema.js) so boot and seed never drift.
+try { db.exec(require('./planner-schema')); } catch (e) {}
 
 // ── surface-palette P0-4 (Principle #4 — tiers = time-to-act, not data importance) ──
 // Decisions get an SLA per kind. Defaults per the palette:
