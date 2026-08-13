@@ -70,7 +70,7 @@ function buildIndex() {
   const projByNorm = new Map();
   for (const p of projects) { const n = norm(p.name); if (n && !projByNorm.has(n)) projByNorm.set(n, p.id); }
 
-  const pcrToProj = new Map();   // 'PARS-123' -> projectId
+  const pcrToProj = new Map();   // 'PROJ-123' -> projectId
   const phraseToProj = [];       // [{phrase, tokens:Set, projectId, weight}]
   // Single-token generic project names are too common to be reliable aliases
   // (e.g. "onboarding" matched an unrelated PROJ). Require multi-word phrases, or a

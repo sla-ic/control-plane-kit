@@ -34,7 +34,7 @@ const norm = s => String(s || '').toLowerCase().replace(/[\[\]]/g, '').replace(/
 const LIMIT = parseInt(process.env.AMP_SYNTH_LIMIT || '0', 10) || 0; // 0 = all (test knob)
 let projects = db.prepare(
   `SELECT id,name,pcr,theme,area,roadmap,priority,kr,target,eng_weeks,summary,
-          status_synthesis,blocker,your_move,health,source_url
+          status_synthesis,blocker,your_move,health,source_url,last_synthesis_at
      FROM projects WHERE roadmap IN (${ROADMAPS.map(() => '?').join(',')}) ORDER BY id`
 ).all(...ROADMAPS);
 if (LIMIT > 0) projects = projects.slice(0, LIMIT);
@@ -59,7 +59,10 @@ function evidenceFor(p) {
   return {
     project: { name: p.name, pcr: p.pcr, theme: p.theme, area: p.area, roadmap: p.roadmap,
       priority: p.priority, kr: p.kr, target: p.target, eng_weeks: p.eng_weeks, summary: p.summary },
-    prev_synthesis: { status_synthesis: p.status_synthesis, blocker: p.blocker, your_move: p.your_move, health: p.health },
+    // NOT evidence — this is the prior read, for continuity only. The SYSTEM prompt
+    // instructs the model to diff against new evidence and NOT restate this.
+    prior_synthesis: { as_of: p.last_synthesis_at || null, status_synthesis: p.status_synthesis,
+      blocker: p.blocker, your_move: p.your_move, health: p.health },
     prd_erd_artifacts: arts,
     live_tasks: tasks,
     open_decisions: decs,
@@ -73,20 +76,29 @@ function evidenceFor(p) {
 }
 
 const SYSTEM = `You are Amp, Jordan Rivera's executive control-center synthesizer for Acme Payments & Experience.
-Given one project's evidence — its PRD/ERD artifact snippets, live Jira tasks (with sprint cycle), open decisions, and the deck record — REASON about the true current state. Do not restate the evidence; infer status, momentum, and risk from it.
+You are given ONE project's evidence: PRD/ERD artifact snippets, live Jira tasks (with sprint cycle), open decisions, the deck record — AND prior_synthesis (your OWN output from last cycle, with as_of date).
+REASON about the true CURRENT state from the evidence. Rules — follow exactly:
+  - GROUND every claim in the evidence. Name what moved (a Jira status, an artifact, a decision). Recency wins: newer signal outranks older.
+  - prior_synthesis is CONTEXT, NOT evidence. Do NOT restate or re-affirm it. If nothing in the artifacts/live_tasks/open_decisions is newer than prior_synthesis.as_of, then there is NO new signal: say so plainly, set health to "unknown" or "yellow" (never a confident red/green off stale input), and lower confidence.
+  - ANTI-REPETITION (critical): if your_move would be essentially the same ask as prior_synthesis.your_move AND no new evidence shows the prior ask was acted on, do NOT re-issue it. Set your_move to null and state in status_synthesis that the prior ask is still unactioned/stuck.
 Register: terse, verdict-first, no hedging, no filler, no continuity disclaimers.
 Return ONLY a JSON object, no prose, with keys:
-  "status_synthesis": 1-3 sentences on what is really happening NOW (grounded in the artifacts + Jira). If Jira shows movement, say so; if artifacts are stale or thin, say the state is uncertain.
+  "status_synthesis": 1-3 sentences on what is really happening NOW, anchored to the most recent evidence. If evidence is thin/stale, say the state is uncertain.
   "health": exactly one of "green" | "yellow" | "red" | "unknown". green=on track, yellow=at risk/watch, red=blocked/off-track, unknown=insufficient signal.
   "blocker": the single most important blocker as a short phrase, or null if none.
-  "your_move": the single most important action PRINCIPAL must take, phrased starting with an action verb (Approve/Decline/Draft/Confirm/Review/Escalate/Ratify/Ship/Hold/Delegate/Schedule/...), or null if nothing is on him.
-  "confidence": a number 0..1 for how well-grounded this synthesis is in the evidence.`;
+  "your_move": the single most important NEW action PRINCIPAL must take, action-verb first (Approve/Decline/Draft/Confirm/Review/Escalate/Ratify/Ship/Hold/Delegate/Schedule/...), or null (null if nothing new is on them OR the prior ask is merely being repeated).
+  "confidence": a number 0..1 for how well-grounded this is in NEW evidence (not in prior_synthesis).`;
 
 async function synth(p) {
   const ev = evidenceFor(p);
   const user = `PROJECT EVIDENCE:\n${JSON.stringify(ev, null, 1)}`;
   const { text } = await claude([{ role: 'user', content: user }], { model: MODEL, system: SYSTEM, maxTokens: 600, temperature: 0 });
   const j = parseJSON(text);
+  // This is only the PROPOSED health. verify-synthesis.js is the authority on the
+  // final verdict: its deterministic gate forces red→unknown when a red has no live
+  // movement / no tasks / no artifact-evidenced blocker, and its independent LLM
+  // re-check can correct the rest. So we don't clamp here — the SYSTEM prompt already
+  // tells the model to use unknown/lower confidence on stale input.
   const health = ['green', 'yellow', 'red', 'unknown'].includes(j.health) ? j.health : 'unknown';
   return {
     type: 'synthesis', project_id: p.id,
