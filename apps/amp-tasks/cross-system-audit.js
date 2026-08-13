@@ -199,7 +199,7 @@ async function gatherSignals(item, thread) {
 }
 
 // ── LLM adjudication ──────────────────────────────────────────────────────────
-const SYS = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer at Acme (Jordan leads Payments Platform + Commerce Experience; PRINCIPAL = ${PRINCIPAL}).
+const SYS = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer at Acme (Jordan leads Payments Platform + Experience; PRINCIPAL = ${PRINCIPAL}).
 
 You are AUDITING one Gmail thread's triage verdict against cross-system evidence. Decide three things and return STRICT JSON only.
 

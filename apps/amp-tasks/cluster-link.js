@@ -114,7 +114,7 @@ function buildIndex() {
   setDom('proctwo.com', findByToken('proctwo') || findByToken('multi processor'));
   setDom('paylink.com', findByToken('paylink'));
   setDom('visionco.com', findByToken('vision') || findByToken('ml'));
-  setDom('jpmorgan.com', findByToken('multi processor') || findByToken('token'));
+  setDom('procthree.com', findByToken('multi processor') || findByToken('token'));
 
   // Local Jira mirror (the `tasks` table synced by sync-jira.js) — ground truth for
   // what a bare "PROJ-XXXX" actually IS. Lets a PROJ-key email resolve to a specific

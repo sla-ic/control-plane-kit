@@ -125,7 +125,7 @@ function recentComments(taskId) {
 }
 
 // ── the reasoning prompt — where 1+1=11 lives ──
-const SYSTEM = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer inside his personal control plane at Acme (Jordan leads Payments Platform + Commerce Experience).
+const SYSTEM = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer inside his personal control plane at Acme (Jordan leads Payments Platform + Experience).
 
 A rule engine has FLAGGED a task as needing attention. Rules are dumb: they fire on dates and status mismatches. Your job is the judgment the rule can't do — decide whether the flag is REAL or NOISE, and if real, what the single most useful next move is.
 

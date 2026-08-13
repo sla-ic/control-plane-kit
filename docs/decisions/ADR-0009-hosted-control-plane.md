@@ -37,28 +37,27 @@ We investigated the real, sanctioned options empirically rather than by assertio
 | Option | Cloud? | Just me? | Always-on? | Verdict |
 |---|---|---|---|---|
 | **Mac + launchd** (today) | no | yes | yes on AC + `caffeinate` (see addendum) | ✅ right-sized now |
-| **devbox remote** | yes (Acme EC2) | yes | *fights it* | ❌ wrong tool — see below |
+| **RemoteDevBox** | yes (Acme cloud VM) | yes | *fights it* | ❌ wrong tool — see below |
 | **CloudRunner** | yes | yes | **no** (per-run ephemeral) | good for scheduled Cycle-B bursts only |
 | **InternalCloud (headless, single-user)** | yes | yes | yes | ✅ correct 24/7 host, high setup ceremony — the deferred flip |
 
-**devbox remote — investigated and rejected on evidence:**
-- It *is* a personal EC2 box in Acme's cloud (`devbox remote create/ssh/tmux/...`),
-  and the "carrot monorepo" coupling is NOT fatal — a stub `CARROT_DIR` +
+**RemoteDevBox — investigated and rejected on evidence:**
+- It *is* a personal cloud VM in Acme's cloud (`remote create/ssh/tmux/...`),
+  and the monorepo coupling is NOT fatal — a stub `MONOREPO_DIR` +
   `GITHUB_USERNAME=your-org` unlocks the remote commands with no monorepo checkout.
 - BUT it is a **disposable, hibernating dev box**, not a durable service host.
-  From Acme's own DevBox Remote User Manual: instances are auto-patched and recycled,
-  snapshotted every 30 min, and *"Never rely on transferring data between instances
-  as a permanent persistence mechanism."* Pool configs set `Hibernate: true`,
-  `MaxAge: 4h`.
+  Per its own docs: instances are auto-patched and recycled, snapshotted every
+  30 min, and are explicitly not a permanent persistence mechanism — never rely
+  on transferring data between instances to keep it. Pool configs set
+  `Hibernate: true`, `MaxAge: 4h`.
 - **Hibernation directly defeats scheduled autonomy**: a hibernated box runs no
   cron, so Cycle B wouldn't fire. Keeping it awake 24/7 means paying full price.
-- **Cost + entitlement**: Jordan is not registered in devbox's instance-type
-  permission system (`/admin/instance-type-permissions/users/jordan.rivera →
-  404 user not found`); the only eligible instance is `r6a.2xlarge` — **64 GiB /
-  8 vCPU, ~$10.89/day ≈ $327/mo** — a full-carrot dev box, absurd overkill for a
-  three-file Node app + SQLite.
+- **Cost + entitlement**: Jordan is not registered in its instance-type
+  permission system; the only eligible instance is a **64 GiB / 8 vCPU box,
+  ~$327/mo** — a full-size dev box, absurd overkill for a three-file Node app +
+  SQLite.
 
-Net: devbox remote is the wrong shape (disposable + hibernating) at the wrong price
+Net: RemoteDevBox is the wrong shape (disposable + hibernating) at the wrong price
 ($327/mo) requiring an onboarding request. Not the middle ground it looked like.
 
 ## Decision
@@ -70,7 +69,7 @@ Net: devbox remote is the wrong shape (disposable + hibernating) at the wrong pr
    thing we actually wanted from "cloud." A portable SQL dump of `tasks.db` is
    pushed to the PRIVATE `control-plane` origin on a dedicated `amp-state` ref
    (`snapshot-to-git.sh`, git plumbing — never touches the working branch). This
-   is exactly what devbox's own manual prescribes ("keep data in GitHub"), matches
+   is exactly what RemoteDevBox's own docs prescribe ("keep data in GitHub"), matches
    the SSOT model, and means any future host is a `git restore` away. The host
    debate dissolves once state is portable.
 

@@ -254,7 +254,7 @@ async function syncInbox(query = QUERY, skip = null) {
 }
 
 // ── CLASSIFY (propose an action) ──
-const CLASSIFY_SYSTEM = `You are Amp, Jordan Rivera's inbox-hygiene layer (Jordan leads Payments Platform + Commerce Experience at Acme). For ONE email thread, propose what to do with it. Be a sharp but CONSERVATIVE filter — most inbox volume is automated noise, but a wrongly-swept human thread costs Jordan real attention.
+const CLASSIFY_SYSTEM = `You are Amp, Jordan Rivera's inbox-hygiene layer (Jordan leads Payments Platform + Experience at Acme). For ONE email thread, propose what to do with it. Be a sharp but CONSERVATIVE filter — most inbox volume is automated noise, but a wrongly-swept human thread costs Jordan real attention.
 
 ROUTING RULES (source of truth):
 ${ROUTING.slice(0, 3500)}

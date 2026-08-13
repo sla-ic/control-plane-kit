@@ -12,7 +12,7 @@
 //   A Google Apps Script archiver has logged EVERY meeting → doc URL into a Google
 //   Sheet since March (~370 rows). That Sheet is the index/queue — we read it, we
 //   do NOT re-search Drive.
-//     Sheet 1AGoi_adi41c7rbMogC_wnQz7wWCHoYJIYmQQx5EBdNc, tab Sheet1
+//     Sheet 1EXAMPLE_MEETINGS_INDEX_SHEET_ID, tab Sheet1
 //     A=Date  B=Meeting Name  C=Doc Link  D=Summary(blank)  E=Logged At  (rows≥2)
 //
 // MODES
@@ -60,7 +60,7 @@ const RECENT_RAW = (() => {
 })();
 const RECENT = RECENT_RAW !== null;
 
-const SHEET_ID = '1AGoi_adi41c7rbMogC_wnQz7wWCHoYJIYmQQx5EBdNc';
+const SHEET_ID = '1EXAMPLE_MEETINGS_INDEX_SHEET_ID';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
 
 const DATA_HOME = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');

@@ -37,13 +37,13 @@ const MIN_ARCHIVES = 4;        // need real repetition before a pattern is a rul
 const MAX_KEEP_RATE = 0.0;     // strict: induce only where the sweep NEVER kept this sender
 
 // Senders/domains governed by a PROTECT rule must never also become archive rules.
-const PROTECT_DOMAINS = new Set(['ExpenseCo.com', 'learnco.co', 'lattice.com', 'accessco.com']);
+const PROTECT_DOMAINS = new Set(['ExpenseCo.com', 'learnco.co', 'reviewco.com', 'accessco.com']);
 
 // Bot-like sender signature. Human colleagues (firstname.lastname@example.com)
 // are NEVER turned into blanket archive rules — their mail is content-dependent.
 // A handful of internal automation aliases are explicitly allowed through.
 const BOT_RE = /(no-?reply|do-?not-?reply|noreply|notifications?|mailer|bounce|daemon|digest|automated|updates?@|alerts?@|@.*\b(atlassian|dtdg|datadoghq|paylink|travelco|rewardsco|healthco|inscorp|visionco|accessco|learnco|greenhouse|workday|lever|calendly|zoom|docusign|rewardsco)\b)/i;
-const INTERNAL_BOT_ALIASES = new Set(['jira@acme.atlassian.net','confluence@acme.atlassian.net','newcarrots@example.com','orders@example.com']);
+const INTERNAL_BOT_ALIASES = new Set(['jira@acme.atlassian.net','confluence@acme.atlassian.net','builds@example.com','orders@example.com']);
 const isHuman = (email) => /@acme\.com$/i.test(email) && /^[a-z]+\.[a-z]+@/i.test(email) && !INTERNAL_BOT_ALIASES.has(email);
 const isBotlike = (email) => INTERNAL_BOT_ALIASES.has(email) || (BOT_RE.test(email) && !isHuman(email));
 const domainOf = (e) => { const m = String(e||'').toLowerCase().match(/@([\w.-]+)$/); return m ? m[1] : null; };
@@ -57,31 +57,31 @@ const PROTECT_RULES = [
     subject_re: '(pending|reject|resubmit|submit|awaiting|action required|needs|overdue)',
     reason: 'ExpenseCo reports needing submission/resubmission are real, dollar-valued, Jordan-owned actions — never auto-archive.',
     match_type_note: 'domain+subject',
-    provenance: { origin: 'recovery', adjudications: ['19f7585a525c6831','19ed7adf452753af'],
-      note: '$2,580.35 pending + rejected offsite report were bulk-archived with zero capture.' },
+    provenance: { origin: 'recovery', adjudications: ['a1b2c3d4e5f60001','a1b2c3d4e5f60002'],
+      note: '$2,500 pending + rejected offsite report were bulk-archived with zero capture.' },
   },
   {
     id: 'protect-learnco-training',
     kind: 'protect', match_type: 'domain', domain: 'learnco.co',
     subject_re: '(past due|overdue|mandatory|assigned|complete|due)',
     reason: 'Past-due mandatory training is a compliance action; keep the latest reminder visible until done.',
-    provenance: { origin: 'recovery', adjudications: ['19f6ba9deb76ad77'],
-      note: 'Past-due Continu training reminders were bulk-archived without capture.' },
+    provenance: { origin: 'recovery', adjudications: ['a1b2c3d4e5f60003'],
+      note: 'Past-due training reminders were bulk-archived without capture.' },
   },
   {
-    id: 'protect-lattice-review',
-    kind: 'protect', match_type: 'domain', domain: 'lattice.com',
+    id: 'protect-reviewco-review',
+    kind: 'protect', match_type: 'domain', domain: 'reviewco.com',
     subject_re: '(check-in|review|self|assessment|calibration|feedback|cycle|summary)',
     reason: 'Performance-review / check-in cycles are rare, high-stakes, Jordan-owned — never auto-archive.',
-    provenance: { origin: 'recovery', adjudications: ['19f800d9d3cd59b3'],
-      note: '2026 Mid-Year Check-in (Lattice) self-review invite was archived.' },
+    provenance: { origin: 'recovery', adjudications: ['a1b2c3d4e5f60004'],
+      note: '2026 Mid-Year Check-in (ReviewCo) self-review invite was archived.' },
   },
   {
     id: 'protect-accessco-expiry',
     kind: 'protect', match_type: 'domain', domain: 'accessco.com',
     subject_re: '(expir|renew|action required|approve|request)',
     reason: 'Access-entitlement expiries CAN be conditional, but keeping them visible is the safe direction (ambiguous verdict in recovery).',
-    provenance: { origin: 'recovery', adjudications: ['19f7627d122cbaf5'],
+    provenance: { origin: 'recovery', adjudications: ['a1b2c3d4e5f60005'],
       note: 'AccessCo data-access expiry — recovery verdict was split (conditional); protect errs toward the inbox.' },
   },
 ];

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /*
- * import-planners.js — load Jordan's real planning spreadsheets into the control
+ * import-planners.js — load Jordan's planning spreadsheets into the control
  * plane as first-class SSOT, and ENRICH them into a connected model:
  *
  *   grid cells  ->  workstream/feature  ->  PROJ ticket  ->  live Jira status
  *                                        ->  theme / OKR  ->  quarter / half
  *
  * Sources (pulled via gsheets MCP into seed/*.json — attended, no live creds here):
- *   Payments : 1Opqc6P4SocKsEx4ZQkeAkSVUVkvQr-Chb78xaZ-jLAM
+ *   Payments : 1EXAMPLE_PAYMENTS_SHEET_ID
  *     Team GANTT  -> person x week (free-text)     [payments-gantt.json]
  *     Projects    -> feature planner + Intake/Ideas/Cut-line [payments-projects.json]
  *     Eng Budget  -> capacity model                [payments-capacity.json]
  *     Outtake     -> cross-team deps -> PROJ         [payments-outtake.json]
- *   Experience    : 1r-k2f69yeQ9ZibyBpFkmu4m8IgmVOSnQl7xa-GR1f_E
+ *   Experience    : 1EXAMPLE_EXPERIENCE_SHEET_ID
  *     H1 2026     -> Q1+Q2 grid (symbol chips) + legend [experience-h1.json]
  *     [WIP] H2    -> Q3 grid + carryover legend     [experience-h2.json]
  *     Backlog     -> pickup candidates              [experience-backlog.json]

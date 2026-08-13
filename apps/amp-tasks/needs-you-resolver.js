@@ -298,7 +298,7 @@ async function gatherContext(item, itemType) {
 }
 
 // ── Step 4: decompose via LLM ──────────────────────────────────────────────
-const DECOMPOSE_SYSTEM = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer at Acme (Jordan leads Payments Platform + Commerce Experience).
+const DECOMPOSE_SYSTEM = `You are Amp, Jordan Rivera's chief-of-staff reasoning layer at Acme (Jordan leads Payments Platform + Experience).
 
 An email in Jordan's "⚡ Needs You" label requires a concrete resolution. Decompose it into a structured, actionable resolution. Be specific — no vague placeholders.
 

@@ -237,6 +237,7 @@ const tasksSelfHeal = [
   "ALTER TABLE tasks ADD COLUMN importance_source TEXT DEFAULT 'computed'", // computed | adjudicated
   "ALTER TABLE tasks ADD COLUMN importance_score INTEGER",     // transparent rubric score 0-100
   "ALTER TABLE tasks ADD COLUMN jira_key TEXT",                // linked Jira issue key
+  "ALTER TABLE tasks ADD COLUMN jira_status TEXT",             // live Jira workflow status (synthesizer reads this)
 ];
 for (const sql of tasksSelfHeal) { try { db.exec(sql); } catch (e) {} }
 

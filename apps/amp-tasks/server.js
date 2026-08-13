@@ -1023,7 +1023,7 @@ app.get('/api/weekly', (req, res) => {
     return new Date(now - day * DAY).toISOString().slice(0, 10);
   })();
   const ritual = lens === 'experience'
-    ? { meeting: 'Experience — Commerce Experience', cadence: '2-week sprint · weekly sync',
+    ? { meeting: 'Experience — Weekly Sync', cadence: '2-week sprint · weekly sync',
         note: 'Sprint planning & team sync alternate Mondays; AI Show & Tell Fridays. Work rolls up to epics; platform siblings (iOS/Android/Web) group as one feature.' }
     : { meeting: 'CP+AP Weekly Product Team Meeting (L10)', cadence: 'Weekly · Tue',
         note: 'Action-items close-out → decisions/recommendations → AI shareout → weekly decision log → walk-ons. Every item owner-tagged.' };
